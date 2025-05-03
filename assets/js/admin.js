@@ -186,8 +186,20 @@ jQuery(document).ready(function($) {
         // Show progress
         $importPreview.hide();
         $importProgress.show();
+        $importResult.hide(); // Ensure result is hidden before starting
         $progressBar.css('width', '10%');
         $progressMessage.text(wpContentPorterAdmin.i18n.processingContent);
+        
+        // Initialize progress simulation
+        let progressComplete = false;
+        let serverResponseReceived = false;
+        let responseData = null;
+        
+        // Start progress simulation
+        simulateProgressUpdates(function() {
+            progressComplete = true;
+            checkIfReadyToShowResult();
+        });
         
         // AJAX request to import content
         $.ajax({
@@ -200,21 +212,12 @@ jQuery(document).ready(function($) {
             },
             success: function(response) {
                 $importNowBtn.prop('disabled', false).text('Import Now');
+                serverResponseReceived = true;
                 
                 if (response.success && response.data) {
-                    // Update progress
-                    updateProgress(100, 'Import completed!');
-                    
-                    // Show result
-                    $importResult.show();
-                    $viewImportedBtn.attr('href', response.data.post_url);
-                    
+                    responseData = response.data;
                     showNotice($importNotice, wpContentPorterAdmin.i18n.importSuccess, 'success');
-                    
-                    // Scroll to result
-                    $('html, body').animate({
-                        scrollTop: $importResult.offset().top - 100
-                    }, 300);
+                    checkIfReadyToShowResult();
                 } else {
                     const errorMsg = response.data ? response.data.message : wpContentPorterAdmin.i18n.importError;
                     showNotice($importNotice, errorMsg, 'error');
@@ -224,11 +227,26 @@ jQuery(document).ready(function($) {
             },
             error: function() {
                 $importNowBtn.prop('disabled', false).text('Import Now');
+                serverResponseReceived = true;
                 showNotice($importNotice, wpContentPorterAdmin.i18n.importError, 'error');
                 $importProgress.hide();
                 $importPreview.show();
             }
         });
+        
+        // Function to check if we can show the final result
+        function checkIfReadyToShowResult() {
+            if (progressComplete && serverResponseReceived && responseData) {
+                // Both progress animation and server response are complete
+                $importResult.show();
+                $viewImportedBtn.attr('href', responseData.post_url);
+                
+                // Scroll to result
+                $('html, body').animate({
+                    scrollTop: $importResult.offset().top - 100
+                }, 300);
+            }
+        }
     });
     
     /**
@@ -243,12 +261,13 @@ jQuery(document).ready(function($) {
     }
     
     // Simulate progress updates
-    function simulateProgressUpdates() {
+    function simulateProgressUpdates(callback) {
         const steps = [
             { percent: 25, message: wpContentPorterAdmin.i18n.processingContent },
             { percent: 50, message: wpContentPorterAdmin.i18n.downloadingMedia },
             { percent: 75, message: 'Creating post and importing content...' },
-            { percent: 90, message: 'Finalizing import...' }
+            { percent: 90, message: 'Finalizing import...' },
+            { percent: 100, message: 'Import completed!' }
         ];
         
         let currentStep = 0;
@@ -257,14 +276,21 @@ jQuery(document).ready(function($) {
             if (currentStep < steps.length) {
                 updateProgress(steps[currentStep].percent, steps[currentStep].message);
                 currentStep++;
+                
+                // If we've reached the last step, trigger the callback after a small delay
+                if (currentStep >= steps.length) {
+                    setTimeout(function() {
+                        clearInterval(interval);
+                        if (callback && typeof callback === 'function') {
+                            callback();
+                        }
+                    }, 800); // Small delay to let users see 100% completion
+                }
             } else {
                 clearInterval(interval);
             }
         }, 1500);
+        
+        return interval;
     }
-    
-    // Start simulating progress updates when import begins
-    $importNowBtn.on('click', function() {
-        simulateProgressUpdates();
-    });
 });
