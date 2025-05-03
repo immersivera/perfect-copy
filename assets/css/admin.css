@@ -1,0 +1,114 @@
+/**
+ * WP Content Porter Admin Styles
+ */
+
+.wp-content-porter-wrap {
+    max-width: 800px;
+    margin: 20px 0;
+}
+
+.wp-content-porter-card {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.wp-content-porter-form {
+    margin: 20px 0;
+}
+
+.wp-content-porter-form-row {
+    margin-bottom: 15px;
+}
+
+.wp-content-porter-form-row label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.wp-content-porter-form-row select,
+.wp-content-porter-form-row textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.wp-content-porter-form-row textarea {
+    font-family: monospace;
+    resize: vertical;
+    min-height: 150px;
+}
+
+.wp-content-porter-result {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.wp-content-porter-preview {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+.wp-content-porter-preview-content {
+    margin-bottom: 15px;
+}
+
+.wp-content-porter-progress {
+    margin-top: 20px;
+}
+
+.wp-content-porter-progress-bar-container {
+    height: 20px;
+    background-color: #f1f1f1;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+
+.wp-content-porter-progress-bar {
+    height: 100%;
+    width: 0;
+    background-color: #0073aa;
+    transition: width 0.3s ease;
+}
+
+.wp-content-porter-notice {
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin: 15px 0;
+}
+
+.wp-content-porter-notice.success {
+    background-color: #ecf9ec;
+    border: 1px solid #57c057;
+    color: #2a8f2a;
+}
+
+.wp-content-porter-notice.error {
+    background-color: #f9ecec;
+    border: 1px solid #c05757;
+    color: #8f2a2a;
+}
+
+.wp-content-porter-notice.info {
+    background-color: #ecf2f9;
+    border: 1px solid #5779c0;
+    color: #2a5b8f;
+}
+
+/* Additional responsive styles */
+@media screen and (max-width: 782px) {
+    .wp-content-porter-form-row button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
