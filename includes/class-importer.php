@@ -91,14 +91,17 @@ class SiteSync_Cloner_Importer {
             }
         }
 
-        // Check post type.
-        $allowed_post_types = array( 'post', 'page' );
+        // Get allowed post types from settings
+        $settings = get_option('sitesync_cloner_settings', array());
+        $allowed_post_types = isset($settings['post_types']) ? $settings['post_types'] : array('post', 'page');
+        
+        // Check if the post type is allowed
         if ( ! in_array( $import_data['post_type'], $allowed_post_types, true ) ) {
             return new WP_Error(
                 'invalid_post_type',
                 sprintf(
                     /* translators: %s: Post type */
-                    __( 'Invalid post type: %s', 'sitesync-cloner' ),
+                    __( 'Invalid post type: %s. This post type is not enabled in SiteSync Cloner settings.', 'sitesync-cloner' ),
                     $import_data['post_type']
                 )
             );

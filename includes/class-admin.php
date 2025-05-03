@@ -119,8 +119,21 @@ class SiteSync_Cloner_Admin {
         // Preserve dates checkbox - checkboxes are only submitted when checked
         $sanitized['preserve_dates'] = isset( $input['preserve_dates'] ) ? 1 : 0;
         
-        // Post types array (ensure at least post and page are included)
-        $sanitized['post_types'] = array('post', 'page');
+        // Post types - ensure at least post and page are included
+        $sanitized['post_types'] = isset($input['post_types']) && is_array($input['post_types']) ? $input['post_types'] : array();
+        
+        // Always include core post types
+        if (!in_array('post', $sanitized['post_types'])) {
+            $sanitized['post_types'][] = 'post';
+        }
+        
+        if (!in_array('page', $sanitized['post_types'])) {
+            $sanitized['post_types'][] = 'page';
+        }
+        
+        // Filter to only valid public post types
+        $public_post_types = get_post_types(array('public' => true));
+        $sanitized['post_types'] = array_intersect($sanitized['post_types'], $public_post_types);
         
         // Add a notice
         add_settings_error(
@@ -217,21 +230,33 @@ class SiteSync_Cloner_Admin {
                     <div class="sitesync-cloner-form-row">
                         <label for="sitesync-cloner-post-type"><?php esc_html_e( 'Select Content Type:', 'sitesync-cloner' ); ?></label>
                         <div class="sitesync-cloner-tabs" id="sitesync-cloner-post-type-tabs">
-                            <button class="sitesync-cloner-tab active" data-post-type="post"><?php esc_html_e( 'Posts', 'sitesync-cloner' ); ?></button>
-                            <button class="sitesync-cloner-tab" data-post-type="page"><?php esc_html_e( 'Pages', 'sitesync-cloner' ); ?></button>
-                            <?php 
-                            // Get other public post types
+                            <?php
+                            // Get enabled post types from settings
+                            $settings = get_option('sitesync_cloner_settings', array());
+                            $enabled_post_types = isset($settings['post_types']) ? $settings['post_types'] : array('post', 'page');
+                            
+                            // Get all public post types
                             $post_types = get_post_types( array( 'public' => true ), 'objects' );
+                            $first_type = true; // Track first enabled type for active class
+                            
                             foreach ( $post_types as $post_type ) :
-                                // Skip posts and pages as they're already included
-                                if ( $post_type->name === 'post' || $post_type->name === 'page' || $post_type->name === 'attachment' ) :
+                                // Skip attachments
+                                if ( $post_type->name === 'attachment' ) :
                                     continue;
                                 endif;
+                                
+                                // Only show enabled post types
+                                if ( in_array($post_type->name, $enabled_post_types) ) :
+                                    $active_class = $first_type ? 'active' : '';
+                                    $first_type = false;
                             ?>
-                                <button class="sitesync-cloner-tab" data-post-type="<?php echo esc_attr( $post_type->name ); ?>">
+                                <button class="sitesync-cloner-tab <?php echo $active_class; ?>" data-post-type="<?php echo esc_attr( $post_type->name ); ?>">
                                     <?php echo esc_html( $post_type->labels->name ); ?>
                                 </button>
-                            <?php endforeach; ?>
+                            <?php 
+                                endif;
+                            endforeach; 
+                            ?>
                         </div>
                     </div>
                     
@@ -391,17 +416,33 @@ class SiteSync_Cloner_Admin {
                             <p class="description"><?php esc_html_e( 'Select which content types can be exported and imported.', 'sitesync-cloner' ); ?></p>
                             
                             <fieldset>
+                                <?php 
+                                // Get all public post types
+                                $post_types = get_post_types(array('public' => true), 'objects');
+                                $enabled_post_types = isset($settings['post_types']) ? $settings['post_types'] : array('post', 'page');
+                                
+                                // Core post types that must be enabled
+                                $core_types = array('post', 'page');
+                                
+                                foreach ($post_types as $post_type) :
+                                    // Skip media attachments
+                                    if ($post_type->name === 'attachment') {
+                                        continue;
+                                    }
+                                    
+                                    $is_core = in_array($post_type->name, $core_types);
+                                    $checked = in_array($post_type->name, $enabled_post_types) ? 'checked' : '';
+                                    $disabled = $is_core ? 'disabled' : '';
+                                ?>
                                 <label>
-                                    <input type="checkbox" name="sitesync_cloner_settings[post_types][]" value="post" checked disabled>
-                                    <?php esc_html_e( 'Posts', 'sitesync-cloner' ); ?>
+                                    <input type="checkbox" name="sitesync_cloner_settings[post_types][]" value="<?php echo esc_attr($post_type->name); ?>"
+                                           <?php echo $checked; ?> <?php echo $disabled; ?>>
+                                    <?php echo esc_html($post_type->labels->name); ?>
+                                    <?php if ($is_core) : ?>
+                                        <span class="required">(<?php esc_html_e('Required', 'sitesync-cloner'); ?>)</span>
+                                    <?php endif; ?>
                                 </label><br>
-                                
-                                <label>
-                                    <input type="checkbox" name="sitesync_cloner_settings[post_types][]" value="page" checked disabled>
-                                    <?php esc_html_e( 'Pages', 'sitesync-cloner' ); ?>
-                                </label>
-                                
-                                <p class="description"><?php esc_html_e( 'Additional post type support will be added in future updates.', 'sitesync-cloner' ); ?></p>
+                                <?php endforeach; ?>
                             </fieldset>
                         </div>
                         
@@ -612,6 +653,15 @@ class SiteSync_Cloner_Admin {
         // Check if post type exists
         if ( ! post_type_exists( $post_type ) ) {
             wp_send_json_error( array( 'message' => __( 'Invalid post type.', 'sitesync-cloner' ) ) );
+        }
+
+        // Get enabled post types from settings
+        $settings = get_option('sitesync_cloner_settings', array());
+        $enabled_post_types = isset($settings['post_types']) ? $settings['post_types'] : array('post', 'page');
+        
+        // Verify the requested post type is enabled
+        if (!in_array($post_type, $enabled_post_types)) {
+            wp_send_json_error( array( 'message' => __( 'This post type is not enabled in SiteSync Cloner settings.', 'sitesync-cloner' ) ) );
         }
 
         // Set up query args
