@@ -1,8 +1,8 @@
 <?php
 /**
- * Exporter class for Clone & Export.
+ * Exporter class for SiteSync Cloner.
  *
- * @package Clone_N_Export
+ * @package SiteSync_Cloner
  */
 
 // Exit if accessed directly.
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Exporter class.
  */
-class Clone_N_Export_Exporter {
+class SiteSync_Cloner_Exporter {
 
     /**
      * Export a post or page.
@@ -26,12 +26,12 @@ class Clone_N_Export_Exporter {
         $post = get_post( $post_id );
 
         if ( ! $post ) {
-            return new WP_Error( 'post_not_found', __( 'Post not found.', 'clone-n-export' ) );
+            return new WP_Error( 'post_not_found', __( 'Post not found.', 'sitesync-cloner' ) );
         }
 
         // Check user capability.
         if ( ! current_user_can( 'edit_post', $post_id ) ) {
-            return new WP_Error( 'permission_denied', __( 'You do not have permission to export this post.', 'clone-n-export' ) );
+            return new WP_Error( 'permission_denied', __( 'You do not have permission to export this post.', 'sitesync-cloner' ) );
         }
 
         // Prepare export data.
@@ -47,7 +47,7 @@ class Clone_N_Export_Exporter {
             'meta'          => $this->get_post_meta( $post_id ),
             'taxonomies'    => $this->get_post_taxonomies( $post_id ),
             'featured_image' => $this->get_featured_image( $post_id ),
-            'export_version' => CLONE_N_EXPORT_VERSION,
+            'export_version' => SITESYNC_CLONER_VERSION,
             'content_blocks' => $this->get_content_blocks( $post ),
             'acf_fields'    => $this->get_acf_fields( $post_id ),
         );
@@ -192,7 +192,7 @@ class Clone_N_Export_Exporter {
      * @return array Media references.
      */
     private function extract_media_references( $export_data ) {
-        $media_handler = new WP_Content_Porter_Media_Handler();
+        $media_handler = new SiteSync_Cloner_Media_Handler();
         
         return $media_handler->extract_media_references( $export_data );
     }

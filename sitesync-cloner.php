@@ -1,17 +1,17 @@
 <?php
 /**
- * Plugin Name: Clone & Export
+ * Plugin Name: SiteSync Cloner
  * Plugin URI: 
  * Description: A WordPress plugin designed to simplify the process of duplicating and transferring content between WordPress sites through a JSON-based export/import system.
  * Version: 1.0.0
  * Author: 
  * Author URI: 
- * Text Domain: clone-n-export
+ * Text Domain: sitesync-cloner
  * Domain Path: /languages
  * License: GPL v2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  *
- * @package Clone_N_Export
+ * @package SiteSync_Cloner
  */
 
 // Exit if accessed directly.
@@ -20,15 +20,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants.
-define( 'CLONE_N_EXPORT_VERSION', '1.0.0' );
-define( 'CLONE_N_EXPORT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'CLONE_N_EXPORT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'CLONE_N_EXPORT_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+define( 'SITESYNC_CLONER_VERSION', '1.0.0' );
+define( 'SITESYNC_CLONER_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'SITESYNC_CLONER_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'SITESYNC_CLONER_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
 /**
  * Main plugin class.
  */
-class Clone_N_Export {
+class SiteSync_Cloner {
 
     /**
      * Instance of this class.
@@ -63,11 +63,11 @@ class Clone_N_Export {
      */
     private function load_dependencies() {
         // Include required files.
-        require_once CLONE_N_EXPORT_PLUGIN_DIR . 'includes/class-admin.php';
-        require_once CLONE_N_EXPORT_PLUGIN_DIR . 'includes/class-exporter.php';
-        require_once CLONE_N_EXPORT_PLUGIN_DIR . 'includes/class-importer.php';
-        require_once CLONE_N_EXPORT_PLUGIN_DIR . 'includes/class-media-handler.php';
-        require_once CLONE_N_EXPORT_PLUGIN_DIR . 'includes/class-json-processor.php';
+        require_once SITESYNC_CLONER_PLUGIN_DIR . 'includes/class-admin.php';
+        require_once SITESYNC_CLONER_PLUGIN_DIR . 'includes/class-exporter.php';
+        require_once SITESYNC_CLONER_PLUGIN_DIR . 'includes/class-importer.php';
+        require_once SITESYNC_CLONER_PLUGIN_DIR . 'includes/class-media-handler.php';
+        require_once SITESYNC_CLONER_PLUGIN_DIR . 'includes/class-json-processor.php';
     }
 
     /**
@@ -81,7 +81,7 @@ class Clone_N_Export {
         register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
 
         // Initialize classes.
-        $admin = new Clone_N_Export_Admin();
+        $admin = new SiteSync_Cloner_Admin();
     }
 
     /**
@@ -102,9 +102,9 @@ class Clone_N_Export {
 }
 
 // Initialize the plugin.
-function clone_n_export_init() {
-    return Clone_N_Export::get_instance();
+function sitesync_cloner_init() {
+    return SiteSync_Cloner::get_instance();
 }
 
 // Start the plugin.
-clone_n_export_init();
+sitesync_cloner_init();

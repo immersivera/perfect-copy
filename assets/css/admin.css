@@ -1,13 +1,13 @@
 /**
- * Clone & Export Admin Styles
+ * SiteSync Cloner Admin Styles
  */
 
-.clone-n-export-wrap {
+.sitesync-cloner-wrap {
     max-width: 800px;
     margin: 20px 0;
 }
 
-.clone-n-export-card {
+.sitesync-cloner-card {
     background: #fff;
     border: 1px solid #ccd0d4;
     border-radius: 4px;
@@ -16,22 +16,22 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.clone-n-export-form {
+.sitesync-cloner-form {
     margin: 20px 0;
 }
 
-.clone-n-export-form-row {
+.sitesync-cloner-form-row {
     margin-bottom: 15px;
 }
 
-.clone-n-export-form-row label {
+.sitesync-cloner-form-row label {
     display: block;
     margin-bottom: 5px;
     font-weight: 600;
 }
 
-.clone-n-export-form-row select,
-.clone-n-export-form-row textarea {
+.sitesync-cloner-form-row select,
+.sitesync-cloner-form-row textarea {
     width: 100%;
     padding: 8px;
     border: 1px solid #ddd;
@@ -44,13 +44,13 @@
     min-height: 150px;
 }
 
-.clone-n-export-result {
+.sitesync-cloner-result {
     margin-top: 20px;
     padding-top: 20px;
     border-top: 1px solid #eee;
 }
 
-.clone-n-export-preview {
+.sitesync-cloner-preview {
     margin-top: 20px;
     padding: 15px;
     background: #f9f9f9;
@@ -58,15 +58,15 @@
     border: 1px solid #eee;
 }
 
-.clone-n-export-preview-content {
+.sitesync-cloner-preview-content {
     margin-bottom: 15px;
 }
 
-.clone-n-export-progress {
+.sitesync-cloner-progress {
     margin-top: 20px;
 }
 
-.clone-n-export-progress-bar-container {
+.sitesync-cloner-progress-bar-container {
     height: 20px;
     background-color: #f1f1f1;
     border-radius: 10px;
@@ -74,32 +74,32 @@
     overflow: hidden;
 }
 
-.clone-n-export-progress-bar {
+.sitesync-cloner-progress-bar {
     height: 100%;
     width: 0;
     background-color: #0073aa;
     transition: width 0.3s ease;
 }
 
-.clone-n-export-notice {
+.sitesync-cloner-notice {
     padding: 10px 15px;
     border-radius: 4px;
     margin: 15px 0;
 }
 
-.clone-n-export-notice.success {
+.sitesync-cloner-notice.success {
     background-color: #ecf9ec;
     border: 1px solid #57c057;
     color: #2a8f2a;
 }
 
-.clone-n-export-notice.error {
+.sitesync-cloner-notice.error {
     background-color: #f9ecec;
     border: 1px solid #c05757;
     color: #8f2a2a;
 }
 
-.clone-n-export-notice.info {
+.sitesync-cloner-notice.info {
     background-color: #ecf2f9;
     border: 1px solid #5779c0;
     color: #2a5b8f;
@@ -107,7 +107,7 @@
 
 /* Additional responsive styles */
 @media screen and (max-width: 782px) {
-    .clone-n-export-form-row button {
+    .sitesync-cloner-form-row button {
         width: 100%;
         margin-bottom: 10px;
     }

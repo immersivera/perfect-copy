@@ -1,8 +1,8 @@
 <?php
 /**
- * Media Handler class for Clone & Export.
+ * Media Handler class for SiteSync Cloner.
  *
- * @package Clone_N_Export
+ * @package SiteSync_Cloner
  */
 
 // Exit if accessed directly.
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Media Handler class.
  */
-class Clone_N_Export_Media_Handler {
+class SiteSync_Cloner_Media_Handler {
 
     /**
      * Extract media references from export data.

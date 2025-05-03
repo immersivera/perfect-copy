@@ -1,28 +1,28 @@
 /**
- * Clone & Export Admin JavaScript
+ * SiteSync Cloner Admin JavaScript
  */
 jQuery(document).ready(function($) {
     // Export functionality
-    const $generateExportBtn = $('#clone-n-export-generate-export');
-    const $exportResult = $('#clone-n-export-export-result');
-    const $exportCode = $('#clone-n-export-export-code');
-    const $copyExportBtn = $('#clone-n-export-copy-export');
-    const $exportNotice = $('#clone-n-export-export-notice');
+    const $generateExportBtn = $('#sitesync-cloner-generate-export');
+    const $exportResult = $('#sitesync-cloner-export-result');
+    const $exportCode = $('#sitesync-cloner-export-code');
+    const $copyExportBtn = $('#sitesync-cloner-copy-export');
+    const $exportNotice = $('#sitesync-cloner-export-notice');
     
     // Import functionality
-    const $validateImportBtn = $('#clone-n-export-validate-import');
-    const $importCode = $('#clone-n-export-import-code');
-    const $importPreview = $('#clone-n-export-import-preview');
-    const $previewTitle = $('#clone-n-export-preview-title');
-    const $previewType = $('#clone-n-export-preview-type');
-    const $previewMediaCount = $('#clone-n-export-preview-media-count');
-    const $importNowBtn = $('#clone-n-export-import-now');
-    const $importProgress = $('#clone-n-export-import-progress');
-    const $progressBar = $('#clone-n-export-progress-bar');
-    const $progressMessage = $('#clone-n-export-progress-message');
-    const $importResult = $('#clone-n-export-import-result');
-    const $viewImportedBtn = $('#clone-n-export-view-imported');
-    const $importNotice = $('#clone-n-export-import-notice');
+    const $validateImportBtn = $('#sitesync-cloner-validate-import');
+    const $importCode = $('#sitesync-cloner-import-code');
+    const $importPreview = $('#sitesync-cloner-import-preview');
+    const $previewTitle = $('#sitesync-cloner-preview-title');
+    const $previewType = $('#sitesync-cloner-preview-type');
+    const $previewMediaCount = $('#sitesync-cloner-preview-media-count');
+    const $importNowBtn = $('#sitesync-cloner-import-now');
+    const $importProgress = $('#sitesync-cloner-import-progress');
+    const $progressBar = $('#sitesync-cloner-progress-bar');
+    const $progressMessage = $('#sitesync-cloner-progress-message');
+    const $importResult = $('#sitesync-cloner-import-result');
+    const $viewImportedBtn = $('#sitesync-cloner-view-imported');
+    const $importNotice = $('#sitesync-cloner-import-notice');
     
     /**
      * Display notice message
@@ -50,10 +50,10 @@ jQuery(document).ready(function($) {
     $generateExportBtn.on('click', function(e) {
         e.preventDefault();
         
-        const postId = $('#clone-n-export-post-select').val();
+        const postId = $('#sitesync-cloner-post-select').val();
         
         if (!postId) {
-            showNotice($exportNotice, wpContentPorterAdmin.i18n.exportError + ' ' + 
+            showNotice($exportNotice, siteSyncClonerAdmin.i18n.exportError + ' ' + 
                        'Please select a post or page.', 'error');
             return;
         }
@@ -63,12 +63,12 @@ jQuery(document).ready(function($) {
         
         // AJAX request to generate export code
         $.ajax({
-            url: cloneNExportAdmin.ajaxUrl,
+            url: siteSyncClonerAdmin.ajaxUrl,
             type: 'POST',
             data: {
-                action: 'clone_n_export_export',
+                action: 'sitesync_cloner_export',
                 post_id: postId,
-                nonce: cloneNExportAdmin.nonce
+                nonce: siteSyncClonerAdmin.nonce
             },
             success: function(response) {
                 $generateExportBtn.prop('disabled', false).text('Generate Export Code');
@@ -77,20 +77,20 @@ jQuery(document).ready(function($) {
                     // Show export code
                     $exportCode.val(response.data.json);
                     $exportResult.show();
-                    showNotice($exportNotice, cloneNExportAdmin.i18n.exportSuccess, 'success');
+                    showNotice($exportNotice, siteSyncClonerAdmin.i18n.exportSuccess, 'success');
                     
                     // Scroll to export code
                     $('html, body').animate({
                         scrollTop: $exportResult.offset().top - 100
                     }, 300);
                 } else {
-                    const errorMsg = response.data ? response.data.message : cloneNExportAdmin.i18n.exportError;
+                    const errorMsg = response.data ? response.data.message : siteSyncClonerAdmin.i18n.exportError;
                     showNotice($exportNotice, errorMsg, 'error');
                 }
             },
             error: function() {
                 $generateExportBtn.prop('disabled', false).text('Generate Export Code');
-                showNotice($exportNotice, cloneNExportAdmin.i18n.exportError, 'error');
+                showNotice($exportNotice, siteSyncClonerAdmin.i18n.exportError, 'error');
             }
         });
     });
@@ -106,9 +106,9 @@ jQuery(document).ready(function($) {
         try {
             // Copy to clipboard
             document.execCommand('copy');
-            showNotice($exportNotice, cloneNExportAdmin.i18n.copySuccess, 'success');
+            showNotice($exportNotice, siteSyncClonerAdmin.i18n.copySuccess, 'success');
         } catch (err) {
-            showNotice($exportNotice, cloneNExportAdmin.i18n.copyError, 'error');
+            showNotice($exportNotice, siteSyncClonerAdmin.i18n.copyError, 'error');
         }
     });
     
@@ -130,12 +130,12 @@ jQuery(document).ready(function($) {
         
         // AJAX request to validate import code
         $.ajax({
-            url: cloneNExportAdmin.ajaxUrl,
+            url: siteSyncClonerAdmin.ajaxUrl,
             type: 'POST',
             data: {
-                action: 'clone_n_export_validate_import',
+                action: 'sitesync_cloner_validate_import',
                 import_code: importCode,
-                nonce: cloneNExportAdmin.nonce
+                nonce: siteSyncClonerAdmin.nonce
             },
             success: function(response) {
                 $validateImportBtn.prop('disabled', false).text('Validate');
@@ -147,21 +147,21 @@ jQuery(document).ready(function($) {
                     $previewMediaCount.text(response.data.media_count);
                     $importPreview.show();
                     
-                    showNotice($importNotice, cloneNExportAdmin.i18n.validationSuccess, 'success');
+                    showNotice($importNotice, siteSyncClonerAdmin.i18n.validationSuccess, 'success');
                     
                     // Scroll to preview
                     $('html, body').animate({
                         scrollTop: $importPreview.offset().top - 100
                     }, 300);
                 } else {
-                    const errorMsg = response.data ? response.data.message : cloneNExportAdmin.i18n.validationError;
+                    const errorMsg = response.data ? response.data.message : siteSyncClonerAdmin.i18n.validationError;
                     showNotice($importNotice, errorMsg, 'error');
                     $importPreview.hide();
                 }
             },
             error: function() {
                 $validateImportBtn.prop('disabled', false).text('Validate');
-                showNotice($importNotice, cloneNExportAdmin.i18n.validationError, 'error');
+                showNotice($importNotice, siteSyncClonerAdmin.i18n.validationError, 'error');
                 $importPreview.hide();
             }
         });
@@ -188,7 +188,7 @@ jQuery(document).ready(function($) {
         $importProgress.show();
         $importResult.hide(); // Ensure result is hidden before starting
         $progressBar.css('width', '10%');
-        $progressMessage.text(cloneNExportAdmin.i18n.processingContent);
+        $progressMessage.text(siteSyncClonerAdmin.i18n.processingContent);
         
         // Initialize progress simulation
         let progressComplete = false;
@@ -203,12 +203,12 @@ jQuery(document).ready(function($) {
         
         // AJAX request to import content
         $.ajax({
-            url: cloneNExportAdmin.ajaxUrl,
+            url: siteSyncClonerAdmin.ajaxUrl,
             type: 'POST',
             data: {
-                action: 'clone_n_export_import',
+                action: 'sitesync_cloner_import',
                 import_code: importCode,
-                nonce: cloneNExportAdmin.nonce
+                nonce: siteSyncClonerAdmin.nonce
             },
             success: function(response) {
                 $importNowBtn.prop('disabled', false).text('Import Now');
@@ -216,10 +216,10 @@ jQuery(document).ready(function($) {
                 
                 if (response.success && response.data) {
                     responseData = response.data;
-                    showNotice($importNotice, cloneNExportAdmin.i18n.importSuccess, 'success');
+                    showNotice($importNotice, siteSyncClonerAdmin.i18n.importSuccess, 'success');
                     checkIfReadyToShowResult();
                 } else {
-                    const errorMsg = response.data ? response.data.message : cloneNExportAdmin.i18n.importError;
+                    const errorMsg = response.data ? response.data.message : siteSyncClonerAdmin.i18n.importError;
                     showNotice($importNotice, errorMsg, 'error');
                     $importProgress.hide();
                     $importPreview.show();
@@ -228,7 +228,7 @@ jQuery(document).ready(function($) {
             error: function() {
                 $importNowBtn.prop('disabled', false).text('Import Now');
                 serverResponseReceived = true;
-                showNotice($importNotice, cloneNExportAdmin.i18n.importError, 'error');
+                showNotice($importNotice, siteSyncClonerAdmin.i18n.importError, 'error');
                 $importProgress.hide();
                 $importPreview.show();
             }
@@ -265,8 +265,8 @@ jQuery(document).ready(function($) {
     // Simulate progress updates
     function simulateProgressUpdates(callback) {
         const steps = [
-            { percent: 25, message: cloneNExportAdmin.i18n.processingContent },
-            { percent: 50, message: cloneNExportAdmin.i18n.downloadingMedia },
+            { percent: 25, message: siteSyncClonerAdmin.i18n.processingContent },
+            { percent: 50, message: siteSyncClonerAdmin.i18n.downloadingMedia },
             { percent: 75, message: 'Creating post and importing content...' },
             { percent: 90, message: 'Finalizing import...' },
             { percent: 100, message: 'Import completed!' }

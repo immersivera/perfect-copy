@@ -1,8 +1,8 @@
 <?php
 /**
- * Importer class for Clone & Export.
+ * Importer class for SiteSync Cloner.
  *
- * @package Clone_N_Export
+ * @package SiteSync_Cloner
  */
 
 // Exit if accessed directly.
@@ -13,12 +13,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Importer class.
  */
-class Clone_N_Export_Importer {
+class SiteSync_Cloner_Importer {
 
     /**
      * Media handler instance.
      *
-     * @var Clone_N_Export_Media_Handler
+     * @var SiteSync_Cloner_Media_Handler
      */
     private $media_handler;
 
@@ -26,7 +26,7 @@ class Clone_N_Export_Importer {
      * Initialize the importer class.
      */
     public function __construct() {
-        $this->media_handler = new Clone_N_Export_Media_Handler();
+        $this->media_handler = new SiteSync_Cloner_Media_Handler();
     }
 
     /**
@@ -45,7 +45,7 @@ class Clone_N_Export_Importer {
                     'missing_required_field',
                     sprintf(
                         /* translators: %s: Field name */
-                        __( 'Missing required field: %s', 'clone-n-export' ),
+                        __( 'Missing required field: %s', 'sitesync-cloner' ),
                         $field
                     )
                 );
@@ -59,7 +59,7 @@ class Clone_N_Export_Importer {
                 'invalid_post_type',
                 sprintf(
                     /* translators: %s: Post type */
-                    __( 'Invalid post type: %s', 'clone-n-export' ),
+                    __( 'Invalid post type: %s', 'sitesync-cloner' ),
                     $import_data['post_type']
                 )
             );
@@ -85,12 +85,12 @@ class Clone_N_Export_Importer {
         if ( 'post' === $import_data['post_type'] && ! current_user_can( 'publish_posts' ) ) {
             return new WP_Error(
                 'permission_denied',
-                __( 'You do not have permission to create posts.', 'clone-n-export' )
+                __( 'You do not have permission to create posts.', 'sitesync-cloner' )
             );
         } elseif ( 'page' === $import_data['post_type'] && ! current_user_can( 'publish_pages' ) ) {
             return new WP_Error(
                 'permission_denied',
-                __( 'You do not have permission to create pages.', 'clone-n-export' )
+                __( 'You do not have permission to create pages.', 'sitesync-cloner' )
             );
         }
 

@@ -38,8 +38,8 @@ class SiteSync_Cloner_Admin {
         // Add export page.
         add_submenu_page(
             'tools.php',
-            __( 'SiteSync Cloner - Export', 'sitesync-cloner' ),
-            __( 'SiteSync Cloner', 'sitesync-cloner' ),
+            __( 'SiteSync Cloner - Export', 'clone-n-export' ),
+            __( 'SiteSync Cloner', 'clone-n-export' ),
             'edit_posts',
             'sitesync-cloner-export',
             array( $this, 'render_export_page' )
@@ -48,8 +48,8 @@ class SiteSync_Cloner_Admin {
         // Add import page.
         add_submenu_page(
             'tools.php',
-            __( 'SiteSync Cloner - Import', 'sitesync-cloner' ),
-            __( 'SiteSync Cloner Import', 'sitesync-cloner' ),
+            __( 'SiteSync Cloner - Import', 'clone-n-export' ),
+            __( 'SiteSync Cloner Import', 'clone-n-export' ),
             'edit_posts',
             'sitesync-cloner-import',
             array( $this, 'render_import_page' )
@@ -111,20 +111,20 @@ class SiteSync_Cloner_Admin {
      */
     public function render_export_page() {
         ?>
-        <div class="wrap sitesync-cloner-wrap">
-            <h1><?php esc_html_e( 'SiteSync Cloner - Export', 'sitesync-cloner' ); ?></h1>
+        <div class="wrap clone-n-export-wrap">
+            <h1><?php esc_html_e( 'SiteSync Cloner - Export', 'clone-n-export' ); ?></h1>
             
             <div class="sitesync-cloner-card">
-                <h2><?php esc_html_e( 'Export Content', 'sitesync-cloner' ); ?></h2>
-                <p><?php esc_html_e( 'Select a post or page to export and generate a JSON code that can be imported into another WordPress site.', 'sitesync-cloner' ); ?></p>
+                <h2><?php esc_html_e( 'Export Content', 'clone-n-export' ); ?></h2>
+                <p><?php esc_html_e( 'Select a post or page to export and generate a JSON code that can be imported into another WordPress site.', 'clone-n-export' ); ?></p>
                 
                 <div class="wp-content-porter-form">
                     <?php wp_nonce_field( 'sitesync-cloner-export', 'sitesync_cloner_export_nonce' ); ?>
                     
                     <div class="sitesync-cloner-form-row">
-                        <label for="sitesync-cloner-post-select"><?php esc_html_e( 'Select Post/Page:', 'sitesync-cloner' ); ?></label>
+                        <label for="sitesync-cloner-post-select"><?php esc_html_e( 'Select Post/Page:', 'clone-n-export' ); ?></label>
                         <select id="sitesync-cloner-post-select" name="post_id" required>
-                            <option value=""><?php esc_html_e( 'Select a post or page', 'sitesync-cloner' ); ?></option>
+                            <option value=""><?php esc_html_e( 'Select a post or page', 'clone-n-export' ); ?></option>
                             <?php
                             $posts = get_posts(
                                 array(
@@ -148,20 +148,20 @@ class SiteSync_Cloner_Admin {
                     </div>
                     
                     <div class="sitesync-cloner-form-row">
-                        <button id="sitesync-cloner-generate-export" class="button button-primary"><?php esc_html_e( 'Generate Export Code', 'sitesync-cloner' ); ?></button>
+                        <button id="sitesync-cloner-generate-export" class="button button-primary"><?php esc_html_e( 'Generate Export Code', 'clone-n-export' ); ?></button>
                     </div>
                 </div>
                 
                 <div id="sitesync-cloner-export-result" class="sitesync-cloner-result" style="display: none;">
-                    <h3><?php esc_html_e( 'Export Code', 'sitesync-cloner' ); ?></h3>
-                    <p><?php esc_html_e( 'Copy this code and paste it into the import field on your target WordPress site.', 'sitesync-cloner' ); ?></p>
+                    <h3><?php esc_html_e( 'Export Code', 'clone-n-export' ); ?></h3>
+                    <p><?php esc_html_e( 'Copy this code and paste it into the import field on your target WordPress site.', 'clone-n-export' ); ?></p>
                     
                     <div class="sitesync-cloner-form-row">
                         <textarea id="sitesync-cloner-export-code" readonly rows="10"></textarea>
                     </div>
                     
                     <div class="sitesync-cloner-form-row">
-                        <button id="sitesync-cloner-copy-export" class="button button-secondary"><?php esc_html_e( 'Copy to Clipboard', 'sitesync-cloner' ); ?></button>
+                        <button id="sitesync-cloner-copy-export" class="button button-secondary"><?php esc_html_e( 'Copy to Clipboard', 'clone-n-export' ); ?></button>
                     </div>
                 </div>
                 
@@ -176,28 +176,28 @@ class SiteSync_Cloner_Admin {
      */
     public function render_import_page() {
         ?>
-        <div class="wrap sitesync-cloner-wrap">
-            <h1><?php esc_html_e( 'SiteSync Cloner - Import', 'sitesync-cloner' ); ?></h1>
+        <div class="wrap clone-n-export-wrap">
+            <h1><?php esc_html_e( 'SiteSync Cloner - Import', 'clone-n-export' ); ?></h1>
             
             <div class="sitesync-cloner-card">
-                <h2><?php esc_html_e( 'Import Content', 'sitesync-cloner' ); ?></h2>
-                <p><?php esc_html_e( 'Paste the export code generated by SiteSync Cloner and import it into this site.', 'sitesync-cloner' ); ?></p>
+                <h2><?php esc_html_e( 'Import Content', 'clone-n-export' ); ?></h2>
+                <p><?php esc_html_e( 'Paste the export code generated by SiteSync Cloner and import it into this site.', 'clone-n-export' ); ?></p>
                 
                 <div class="sitesync-cloner-form">
                     <?php wp_nonce_field( 'sitesync-cloner-import', 'sitesync_cloner_import_nonce' ); ?>
                     
                     <div class="sitesync-cloner-form-row">
-                        <label for="sitesync-cloner-import-code"><?php esc_html_e( 'Paste Export Code:', 'sitesync-cloner' ); ?></label>
+                        <label for="sitesync-cloner-import-code"><?php esc_html_e( 'Paste Export Code:', 'clone-n-export' ); ?></label>
                         <textarea id="sitesync-cloner-import-code" name="import_code" rows="10" required></textarea>
                     </div>
                     
                     <div class="sitesync-cloner-form-row">
-                        <button id="sitesync-cloner-validate-import" class="button button-secondary"><?php esc_html_e( 'Validate', 'sitesync-cloner' ); ?></button>
+                        <button id="sitesync-cloner-validate-import" class="button button-secondary"><?php esc_html_e( 'Validate', 'clone-n-export' ); ?></button>
                     </div>
                 </div>
                 
                 <div id="sitesync-cloner-import-preview" class="sitesync-cloner-preview" style="display: none;">
-                    <h3><?php esc_html_e( 'Import Preview', 'sitesync-cloner' ); ?></h3>
+                    <h3><?php esc_html_e( 'Import Preview', 'clone-n-export' ); ?></h3>
                     
                     <div class="sitesync-cloner-preview-content">
                         <p><strong><?php esc_html_e( 'Title:', 'sitesync-cloner' ); ?></strong> <span id="sitesync-cloner-preview-title"></span></p>
@@ -206,22 +206,22 @@ class SiteSync_Cloner_Admin {
                     </div>
                     
                     <div class="sitesync-cloner-form-row">
-                        <button id="sitesync-cloner-import-now" class="button button-primary"><?php esc_html_e( 'Import Now', 'sitesync-cloner' ); ?></button>
+                        <button id="sitesync-cloner-import-now" class="button button-primary"><?php esc_html_e( 'Import Now', 'clone-n-export' ); ?></button>
                     </div>
                 </div>
                 
                 <div id="sitesync-cloner-import-progress" class="sitesync-cloner-progress" style="display: none;">
-                    <h3><?php esc_html_e( 'Import Progress', 'sitesync-cloner' ); ?></h3>
+                    <h3><?php esc_html_e( 'Import Progress', 'clone-n-export' ); ?></h3>
                     
                     <div class="sitesync-cloner-progress-bar-container">
                         <div id="sitesync-cloner-progress-bar" class="sitesync-cloner-progress-bar"></div>
                     </div>
                     
-                    <p id="sitesync-cloner-progress-message"><?php esc_html_e( 'Importing...', 'sitesync-cloner' ); ?></p>
+                    <p id="sitesync-cloner-progress-message"><?php esc_html_e( 'Importing...', 'clone-n-export' ); ?></p>
                 </div>
                 
                 <div id="sitesync-cloner-import-result" class="sitesync-cloner-result" style="display: none;">
-                    <h3><?php esc_html_e( 'Import Complete', 'sitesync-cloner' ); ?></h3>
+                    <h3><?php esc_html_e( 'Import Complete', 'clone-n-export' ); ?></h3>
                     
                     <p><?php esc_html_e( 'Content imported successfully as a draft!', 'sitesync-cloner' ); ?></p>
                     
