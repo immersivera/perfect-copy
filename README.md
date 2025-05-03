@@ -1,4 +1,4 @@
-# SiteSync Cloner
+# WordPress Plugin: SiteSync Cloner
 
 SiteSync Cloner is a WordPress plugin designed to simplify the process of duplicating and transferring content between WordPress sites. It offers a streamlined, user-friendly approach to content migration through a JSON-based export/import system that preserves all essential content components.
 
