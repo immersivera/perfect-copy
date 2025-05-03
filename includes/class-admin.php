@@ -30,31 +30,99 @@ class SiteSync_Cloner_Admin {
         add_action( 'wp_ajax_sitesync_cloner_validate_import', array( $this, 'handle_validate_import_ajax' ) );
         add_action( 'wp_ajax_sitesync_cloner_import', array( $this, 'handle_import_ajax' ) );
         add_action( 'wp_ajax_sitesync_cloner_load_posts', array( $this, 'handle_load_posts_ajax' ) );
+        
+        // Register settings
+        add_action( 'admin_init', array( $this, 'register_settings' ) );
     }
 
     /**
      * Add admin menu items.
      */
     public function add_admin_menu() {
-        // Add export page.
-        add_submenu_page(
-            'tools.php',
-            __( 'SiteSync Cloner - Export', 'sitesync-cloner' ),
+        // Add main menu page
+        add_menu_page(
+            __( 'SiteSync Cloner', 'sitesync-cloner' ),
             __( 'SiteSync Cloner', 'sitesync-cloner' ),
             'edit_posts',
-            'sitesync-cloner-export',
+            'sitesync-cloner',
+            array( $this, 'render_export_page' ), // Default to export page
+            'dashicons-backup', // Use backup icon
+            30 // Position after Comments
+        );
+
+        // Add Export submenu page
+        add_submenu_page(
+            'sitesync-cloner',
+            __( 'SiteSync Cloner - Export', 'sitesync-cloner' ),
+            __( 'Export', 'sitesync-cloner' ),
+            'edit_posts',
+            'sitesync-cloner', // Same as parent slug to override
             array( $this, 'render_export_page' )
         );
 
-        // Add import page.
+        // Add Import submenu page
         add_submenu_page(
-            'tools.php',
+            'sitesync-cloner',
             __( 'SiteSync Cloner - Import', 'sitesync-cloner' ),
-            __( 'SiteSync Cloner Import', 'sitesync-cloner' ),
+            __( 'Import', 'sitesync-cloner' ),
             'edit_posts',
             'sitesync-cloner-import',
             array( $this, 'render_import_page' )
         );
+        
+        // Add Settings submenu page
+        add_submenu_page(
+            'sitesync-cloner',
+            __( 'SiteSync Cloner - Settings', 'sitesync-cloner' ),
+            __( 'Settings', 'sitesync-cloner' ),
+            'manage_options',
+            'sitesync-cloner-settings',
+            array( $this, 'render_settings_page' )
+        );
+    }
+    
+    /**
+     * Register plugin settings.
+     */
+    public function register_settings() {
+        // Register settings group
+        register_setting(
+            'sitesync_cloner_settings',
+            'sitesync_cloner_settings',
+            array( $this, 'sanitize_settings' )
+        );
+        
+        // Register default settings if they don't exist
+        $default_settings = array(
+            'handle_media' => 1,
+            'preserve_dates' => 1,
+            'post_types' => array('post', 'page'),
+        );
+        
+        if ( false === get_option( 'sitesync_cloner_settings' ) ) {
+            add_option( 'sitesync_cloner_settings', $default_settings );
+        }
+    }
+    
+    /**
+     * Sanitize settings before saving.
+     *
+     * @param array $input The settings input array.
+     * @return array Sanitized settings.
+     */
+    public function sanitize_settings( $input ) {
+        $sanitized = array();
+        
+        // Handle media checkbox
+        $sanitized['handle_media'] = isset( $input['handle_media'] ) ? 1 : 0;
+        
+        // Preserve dates checkbox
+        $sanitized['preserve_dates'] = isset( $input['preserve_dates'] ) ? 1 : 0;
+        
+        // Post types array (ensure at least post and page are included)
+        $sanitized['post_types'] = array('post', 'page');
+        
+        return $sanitized;
     }
 
     /**
@@ -63,7 +131,16 @@ class SiteSync_Cloner_Admin {
      * @param string $hook Current admin page hook.
      */
     public function enqueue_admin_scripts( $hook ) {
-        if ( 'tools_page_sitesync-cloner-export' !== $hook && 'tools_page_sitesync-cloner-import' !== $hook ) {
+        // Match both old and new menu hooks for backward compatibility
+        $valid_hooks = array(
+            'tools_page_sitesync-cloner-export',
+            'tools_page_sitesync-cloner-import',
+            'toplevel_page_sitesync-cloner',
+            'sitesync-cloner_page_sitesync-cloner-import',
+            'sitesync-cloner_page_sitesync-cloner-settings'
+        );
+        
+        if ( !in_array($hook, $valid_hooks) ) {
             return;
         }
 
@@ -256,6 +333,77 @@ class SiteSync_Cloner_Admin {
                 </div>
                 
                 <div id="sitesync-cloner-import-notice" class="notice" style="display: none;"></div>
+            </div>
+        </div>
+        <?php
+    }
+
+    /**
+     * Render the settings page.
+     */
+    public function render_settings_page() {
+        ?>
+        <div class="wrap sitesync-cloner-wrap">
+            <h1><?php esc_html_e( 'SiteSync Cloner - Settings', 'sitesync-cloner' ); ?></h1>
+            
+            <div class="sitesync-cloner-card">
+                <h2><?php esc_html_e( 'Plugin Settings', 'sitesync-cloner' ); ?></h2>
+                
+                <form method="post" action="options.php" id="sitesync-cloner-settings-form">
+                    <?php
+                    settings_fields( 'sitesync_cloner_settings' );
+                    do_settings_sections( 'sitesync_cloner_settings' );
+                    ?>
+                    
+                    <div class="sitesync-cloner-form">
+                        <div class="sitesync-cloner-form-row">
+                            <h3><?php esc_html_e( 'Content Types', 'sitesync-cloner' ); ?></h3>
+                            <p class="description"><?php esc_html_e( 'Select which content types can be exported and imported.', 'sitesync-cloner' ); ?></p>
+                            
+                            <fieldset>
+                                <label>
+                                    <input type="checkbox" name="sitesync_cloner_settings[post_types][]" value="post" checked disabled>
+                                    <?php esc_html_e( 'Posts', 'sitesync-cloner' ); ?>
+                                </label><br>
+                                
+                                <label>
+                                    <input type="checkbox" name="sitesync_cloner_settings[post_types][]" value="page" checked disabled>
+                                    <?php esc_html_e( 'Pages', 'sitesync-cloner' ); ?>
+                                </label>
+                                
+                                <p class="description"><?php esc_html_e( 'Additional post type support will be added in future updates.', 'sitesync-cloner' ); ?></p>
+                            </fieldset>
+                        </div>
+                        
+                        <div class="sitesync-cloner-form-row">
+                            <h3><?php esc_html_e( 'Media Handling', 'sitesync-cloner' ); ?></h3>
+                            
+                            <fieldset>
+                                <label>
+                                    <input type="checkbox" name="sitesync_cloner_settings[handle_media]" value="1" checked>
+                                    <?php esc_html_e( 'Download and import media files', 'sitesync-cloner' ); ?>
+                                </label>
+                                <p class="description"><?php esc_html_e( 'When enabled, SiteSync Cloner will attempt to download media files from the source site and add them to your media library.', 'sitesync-cloner' ); ?></p>
+                            </fieldset>
+                        </div>
+                        
+                        <div class="sitesync-cloner-form-row">
+                            <h3><?php esc_html_e( 'Advanced Options', 'sitesync-cloner' ); ?></h3>
+                            
+                            <fieldset>
+                                <label>
+                                    <input type="checkbox" name="sitesync_cloner_settings[preserve_dates]" value="1" checked>
+                                    <?php esc_html_e( 'Preserve original post dates', 'sitesync-cloner' ); ?>
+                                </label>
+                                <p class="description"><?php esc_html_e( 'When enabled, imported content will maintain its original creation date.', 'sitesync-cloner' ); ?></p>
+                            </fieldset>
+                        </div>
+                    </div>
+                    
+                    <?php submit_button( __( 'Save Settings', 'sitesync-cloner' ) ); ?>
+                </form>
+                
+                <div id="sitesync-cloner-settings-notice" class="notice" style="display: none;"></div>
             </div>
         </div>
         <?php
