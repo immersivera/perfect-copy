@@ -36,7 +36,8 @@
 
 .sitesync-cloner-form-row select,
 .sitesync-cloner-form-row textarea,
-.sitesync-cloner-form-row input[type="file"] {
+.sitesync-cloner-form-row input[type="file"],
+.sitesync-cloner-form-row input[type="text"] {
     width: 100%;
     padding: 8px;
     border: 1px solid #ddd;
@@ -115,11 +116,58 @@
     color: #2a5b8f;
 }
 
+/* Tabs styling */
+.sitesync-cloner-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.sitesync-cloner-tab {
+    padding: 8px 12px;
+    background-color: #f1f1f1;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1.5;
+    text-decoration: none;
+    color: #555;
+    transition: all 0.2s ease;
+}
+
+.sitesync-cloner-tab:hover {
+    background-color: #e8e8e8;
+}
+
+.sitesync-cloner-tab.active {
+    background-color: #0073aa;
+    border-color: #0073aa;
+    color: #fff;
+}
+
+/* Loading indicator */
+.sitesync-cloner-loading {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.sitesync-cloner-loading .spinner {
+    margin-top: 0;
+    margin-right: 5px;
+}
+
 /* Additional responsive styles */
 @media screen and (max-width: 782px) {
     .sitesync-cloner-form-row button {
         width: 100%;
         margin-right: 0;
         margin-bottom: 10px;
+    }
+    
+    .sitesync-cloner-tabs {
+        flex-direction: column;
     }
 }

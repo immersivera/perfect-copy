@@ -29,6 +29,7 @@ class SiteSync_Cloner_Admin {
         add_action( 'wp_ajax_sitesync_cloner_export', array( $this, 'handle_export_ajax' ) );
         add_action( 'wp_ajax_sitesync_cloner_validate_import', array( $this, 'handle_validate_import_ajax' ) );
         add_action( 'wp_ajax_sitesync_cloner_import', array( $this, 'handle_import_ajax' ) );
+        add_action( 'wp_ajax_sitesync_cloner_load_posts', array( $this, 'handle_load_posts_ajax' ) );
     }
 
     /**
@@ -126,29 +127,39 @@ class SiteSync_Cloner_Admin {
                     <?php wp_nonce_field( 'sitesync-cloner-export', 'sitesync_cloner_export_nonce' ); ?>
                     
                     <div class="sitesync-cloner-form-row">
-                        <label for="sitesync-cloner-post-select"><?php esc_html_e( 'Select Post/Page:', 'sitesync-cloner' ); ?></label>
-                        <select id="sitesync-cloner-post-select" name="post_id" required>
-                            <option value=""><?php esc_html_e( 'Select a post or page', 'sitesync-cloner' ); ?></option>
-                            <?php
-                            $posts = get_posts(
-                                array(
-                                    'post_type'      => array( 'post', 'page' ),
-                                    'posts_per_page' => -1,
-                                    'orderby'        => 'title',
-                                    'order'          => 'ASC',
-                                )
-                            );
-
-                            foreach ( $posts as $post ) {
-                                printf(
-                                    '<option value="%d">%s (%s)</option>',
-                                    esc_attr( $post->ID ),
-                                    esc_html( $post->post_title ),
-                                    esc_html( $post->post_type )
-                                );
-                            }
+                        <label for="sitesync-cloner-post-type"><?php esc_html_e( 'Select Content Type:', 'sitesync-cloner' ); ?></label>
+                        <div class="sitesync-cloner-tabs" id="sitesync-cloner-post-type-tabs">
+                            <button class="sitesync-cloner-tab active" data-post-type="post"><?php esc_html_e( 'Posts', 'sitesync-cloner' ); ?></button>
+                            <button class="sitesync-cloner-tab" data-post-type="page"><?php esc_html_e( 'Pages', 'sitesync-cloner' ); ?></button>
+                            <?php 
+                            // Get other public post types
+                            $post_types = get_post_types( array( 'public' => true ), 'objects' );
+                            foreach ( $post_types as $post_type ) :
+                                // Skip posts and pages as they're already included
+                                if ( $post_type->name === 'post' || $post_type->name === 'page' || $post_type->name === 'attachment' ) :
+                                    continue;
+                                endif;
                             ?>
+                                <button class="sitesync-cloner-tab" data-post-type="<?php echo esc_attr( $post_type->name ); ?>">
+                                    <?php echo esc_html( $post_type->labels->name ); ?>
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    
+                    <div class="sitesync-cloner-form-row">
+                        <label for="sitesync-cloner-search"><?php esc_html_e( 'Search Content:', 'sitesync-cloner' ); ?></label>
+                        <input type="text" id="sitesync-cloner-search" name="search" placeholder="<?php esc_attr_e( 'Type to search...', 'sitesync-cloner' ); ?>" />
+                    </div>
+                    
+                    <div class="sitesync-cloner-form-row">
+                        <label for="sitesync-cloner-post-select"><?php esc_html_e( 'Select Content:', 'sitesync-cloner' ); ?></label>
+                        <select id="sitesync-cloner-post-select" name="post_id" required size="8">
+                            <option value=""><?php esc_html_e( 'Select content to export', 'sitesync-cloner' ); ?></option>
                         </select>
+                        <div id="sitesync-cloner-loading" class="sitesync-cloner-loading" style="display: none;">
+                            <span class="spinner is-active"></span> <?php esc_html_e( 'Loading...', 'sitesync-cloner' ); ?>
+                        </div>
                     </div>
                     
                     <div class="sitesync-cloner-form-row">
@@ -324,6 +335,56 @@ class SiteSync_Cloner_Admin {
                 'media_count' => $media_count,
             )
         );
+    }
+
+    /**
+     * Handle load posts AJAX request.
+     */
+    public function handle_load_posts_ajax() {
+        // Check nonce.
+        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'sitesync-cloner-nonce' ) ) {
+            wp_send_json_error( array( 'message' => __( 'Security check failed.', 'sitesync-cloner' ) ) );
+        }
+
+        // Get post type and search term
+        $post_type = isset( $_POST['post_type'] ) ? sanitize_text_field( wp_unslash( $_POST['post_type'] ) ) : 'post';
+        $search = isset( $_POST['search'] ) ? sanitize_text_field( wp_unslash( $_POST['search'] ) ) : '';
+
+        // Check if post type exists
+        if ( ! post_type_exists( $post_type ) ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid post type.', 'sitesync-cloner' ) ) );
+        }
+
+        // Set up query args
+        $args = array(
+            'post_type'      => $post_type,
+            'posts_per_page' => 50, // Limit results for performance
+            'post_status'    => array( 'publish', 'draft', 'private' ),
+            'orderby'        => 'title',
+            'order'          => 'ASC',
+        );
+
+        // Add search if provided
+        if ( ! empty( $search ) ) {
+            $args['s'] = $search;
+        }
+
+        // Get posts
+        $query = new WP_Query( $args );
+        $posts = array();
+
+        if ( $query->have_posts() ) {
+            while ( $query->have_posts() ) {
+                $query->the_post();
+                $posts[] = array(
+                    'id'     => get_the_ID(),
+                    'title'  => get_the_title() . ' (' . get_post_status() . ')',
+                );
+            }
+            wp_reset_postdata();
+        }
+
+        wp_send_json_success( $posts );
     }
 
     /**

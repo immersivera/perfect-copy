@@ -9,6 +9,10 @@ jQuery(document).ready(function($) {
     const $copyExportBtn = $('#sitesync-cloner-copy-export');
     const $saveExportBtn = $('#sitesync-cloner-save-export');
     const $exportNotice = $('#sitesync-cloner-export-notice');
+    const $postTypeTab = $('.sitesync-cloner-tab');
+    const $searchInput = $('#sitesync-cloner-search');
+    const $postSelect = $('#sitesync-cloner-post-select');
+    const $loadingIndicator = $('#sitesync-cloner-loading');
     
     // Import functionality
     const $validateImportBtn = $('#sitesync-cloner-validate-import');
@@ -47,6 +51,99 @@ jQuery(document).ready(function($) {
     }
     
     /**
+     * Handle post type tab clicks
+     */
+    $postTypeTab.on('click', function(e) {
+        e.preventDefault();
+        
+        // Update active tab
+        $postTypeTab.removeClass('active');
+        $(this).addClass('active');
+        
+        // Get selected post type
+        const postType = $(this).data('post-type');
+        
+        // Clear search input
+        $searchInput.val('');
+        
+        // Load posts for this post type
+        loadPosts(postType, '');
+    });
+    
+    /**
+     * Handle search input
+     */
+    let searchTimer;
+    $searchInput.on('input', function() {
+        const searchTerm = $(this).val();
+        
+        // Get current post type
+        const postType = $('.sitesync-cloner-tab.active').data('post-type');
+        
+        // Clear previous timer
+        clearTimeout(searchTimer);
+        
+        // Set new timer for debouncing
+        searchTimer = setTimeout(function() {
+            loadPosts(postType, searchTerm);
+        }, 300); // 300ms delay for debouncing
+    });
+    
+    /**
+     * Load posts for a post type with optional search
+     */
+    function loadPosts(postType, searchTerm = '') {
+        // Clear current options
+        $postSelect.find('option:not(:first)').remove();
+        
+        // Show loading indicator
+        $loadingIndicator.show();
+        
+        $.ajax({
+            url: siteSyncClonerAdmin.ajaxUrl,
+            type: 'POST',
+            data: {
+                action: 'sitesync_cloner_load_posts',
+                post_type: postType,
+                search: searchTerm,
+                nonce: siteSyncClonerAdmin.nonce
+            },
+            success: function(response) {
+                $loadingIndicator.hide();
+                
+                if (response.success && response.data) {
+                    // Add options to select
+                    $.each(response.data, function(index, post) {
+                        $postSelect.append($('<option>', {
+                            value: post.id,
+                            text: post.title
+                        }));
+                    });
+                    
+                    // Handle no results
+                    if (response.data.length === 0) {
+                        if (searchTerm) {
+                            showNotice($exportNotice, 'No content found matching "' + searchTerm + '"', 'info');
+                        } else {
+                            showNotice($exportNotice, 'No content found for this post type', 'info');
+                        }
+                    }
+                } else {
+                    const errorMsg = response.data ? response.data.message : 'Error loading content.';
+                    showNotice($exportNotice, errorMsg, 'error');
+                }
+            },
+            error: function() {
+                $loadingIndicator.hide();
+                showNotice($exportNotice, 'Error loading content.', 'error');
+            }
+        });
+    }
+    
+    // Initialize with the first post type (posts)
+    loadPosts('post', '');
+    
+    /**
      * Generate export code
      */
     $generateExportBtn.on('click', function(e) {
@@ -56,7 +153,7 @@ jQuery(document).ready(function($) {
         
         if (!postId) {
             showNotice($exportNotice, siteSyncClonerAdmin.i18n.exportError + ' ' + 
-                       'Please select a post or page.', 'error');
+                       'Please select content to export.', 'error');
             return;
         }
         
