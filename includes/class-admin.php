@@ -830,7 +830,7 @@ class SiteSync_Cloner_Admin {
             
             <p style="margin-top:15px;"><strong><?php esc_html_e('Clone Options:', 'sitesync-cloner'); ?></strong></p>
             <a href="<?php echo esc_url($clone_url); ?>" class="button button-primary sitesync-clone-button">
-                <?php esc_html_e('Clone This Post', 'sitesync-cloner'); ?>
+                <?php echo esc_html(get_post_type($post) === 'page' ? __('Clone This Page', 'sitesync-cloner') : __('Clone This Post', 'sitesync-cloner')); ?>
             </a>
             <p class="description"><?php esc_html_e('Creates a duplicate copy of this post as a draft.', 'sitesync-cloner'); ?></p>
         </div>
