@@ -262,7 +262,7 @@ class WP_Content_Porter_Importer {
             'post_title'    => $import_data['post_title'],
             'post_content'  => $import_data['post_content'],
             'post_type'     => $import_data['post_type'],
-            'post_status'   => isset( $import_data['post_status'] ) ? $import_data['post_status'] : 'draft',
+            'post_status'   => 'draft', // Always set as draft regardless of original status
             'post_excerpt'  => isset( $import_data['post_excerpt'] ) ? $import_data['post_excerpt'] : '',
             'comment_status' => isset( $import_data['comment_status'] ) ? $import_data['comment_status'] : 'open',
             'ping_status'   => isset( $import_data['ping_status'] ) ? $import_data['ping_status'] : 'open',

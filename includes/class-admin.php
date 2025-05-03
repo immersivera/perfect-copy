@@ -223,9 +223,9 @@ class WP_Content_Porter_Admin {
                 <div id="wp-content-porter-import-result" class="wp-content-porter-result" style="display: none;">
                     <h3><?php esc_html_e( 'Import Complete', 'wp-content-porter' ); ?></h3>
                     
-                    <p><?php esc_html_e( 'Content imported successfully!', 'wp-content-porter' ); ?></p>
+                    <p><?php esc_html_e( 'Content imported successfully as a draft!', 'wp-content-porter' ); ?></p>
                     
-                    <p><a id="wp-content-porter-view-imported" href="#" class="button button-primary" target="_blank"><?php esc_html_e( 'View Imported Content', 'wp-content-porter' ); ?></a></p>
+                    <p><a id="wp-content-porter-view-imported" href="#" class="button button-primary"><?php esc_html_e( 'Edit Imported Content', 'wp-content-porter' ); ?></a></p>
                 </div>
                 
                 <div id="wp-content-porter-import-notice" class="notice" style="display: none;"></div>
@@ -352,8 +352,9 @@ class WP_Content_Porter_Admin {
 
         wp_send_json_success(
             array(
-                'post_id'  => $result,
-                'post_url' => get_permalink( $result ),
+                'post_id'   => $result,
+                'post_url'  => get_permalink( $result ),
+                'edit_url'  => get_edit_post_link( $result, 'raw' ),
             )
         );
     }

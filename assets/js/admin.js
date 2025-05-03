@@ -239,7 +239,9 @@ jQuery(document).ready(function($) {
             if (progressComplete && serverResponseReceived && responseData) {
                 // Both progress animation and server response are complete
                 $importResult.show();
-                $viewImportedBtn.attr('href', responseData.post_url);
+                
+                // Use edit URL instead of view URL
+                $viewImportedBtn.attr('href', responseData.edit_url);
                 
                 // Scroll to result
                 $('html, body').animate({
