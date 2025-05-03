@@ -229,7 +229,7 @@ class SiteSync_Cloner_Admin {
                     
                     <div class="sitesync-cloner-form-row">
                         <label for="sitesync-cloner-post-type"><?php esc_html_e( 'Select Content Type:', 'sitesync-cloner' ); ?></label>
-                        <div class="sitesync-cloner-tabs" id="sitesync-cloner-post-type-tabs">
+                        <select id="sitesync-cloner-post-type" class="sitesync-cloner-select">
                             <?php
                             // Get enabled post types from settings
                             $settings = get_option('sitesync_cloner_settings', array());
@@ -237,7 +237,7 @@ class SiteSync_Cloner_Admin {
                             
                             // Get all public post types
                             $post_types = get_post_types( array( 'public' => true ), 'objects' );
-                            $first_type = true; // Track first enabled type for active class
+                            $first_type = true; // Track first type to make it selected by default
                             
                             foreach ( $post_types as $post_type ) :
                                 // Skip attachments
@@ -247,17 +247,17 @@ class SiteSync_Cloner_Admin {
                                 
                                 // Only show enabled post types
                                 if ( in_array($post_type->name, $enabled_post_types) ) :
-                                    $active_class = $first_type ? 'active' : '';
+                                    $selected = $first_type ? 'selected="selected"' : '';
                                     $first_type = false;
                             ?>
-                                <button class="sitesync-cloner-tab <?php echo $active_class; ?>" data-post-type="<?php echo esc_attr( $post_type->name ); ?>">
+                                <option value="<?php echo esc_attr( $post_type->name ); ?>" <?php echo $selected; ?>>
                                     <?php echo esc_html( $post_type->labels->name ); ?>
-                                </button>
+                                </option>
                             <?php 
                                 endif;
                             endforeach; 
                             ?>
-                        </div>
+                        </select>
                     </div>
                     
                     <div class="sitesync-cloner-form-row">
@@ -664,10 +664,14 @@ class SiteSync_Cloner_Admin {
             wp_send_json_error( array( 'message' => __( 'This post type is not enabled in SiteSync Cloner settings.', 'sitesync-cloner' ) ) );
         }
 
+        // Get page number for pagination
+        $page = isset($_POST['page']) ? intval($_POST['page']) : 1;
+        
         // Set up query args
         $args = array(
             'post_type'      => $post_type,
-            'posts_per_page' => 50, // Limit results for performance
+            'posts_per_page' => 10, // Limit to 10 posts per page as requested
+            'paged'          => $page,
             'post_status'    => array( 'publish', 'draft', 'private' ),
             'orderby'        => 'title',
             'order'          => 'ASC',
@@ -692,8 +696,22 @@ class SiteSync_Cloner_Admin {
             }
             wp_reset_postdata();
         }
+        
+        // Calculate pagination info
+        $total_posts = $query->found_posts;
+        $total_pages = ceil($total_posts / $args['posts_per_page']);
 
-        wp_send_json_success( $posts );
+        $response = array(
+            'posts' => $posts,
+            'pagination' => array(
+                'total_posts' => $total_posts,
+                'total_pages' => $total_pages,
+                'current_page' => $page,
+                'per_page' => $args['posts_per_page']
+            )
+        );
+
+        wp_send_json_success( $response );
     }
 
     /**

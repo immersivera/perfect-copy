@@ -9,11 +9,15 @@ jQuery(document).ready(function($) {
     const $copyExportBtn = $('#sitesync-cloner-copy-export');
     const $saveExportBtn = $('#sitesync-cloner-save-export');
     const $exportNotice = $('#sitesync-cloner-export-notice');
-    const $postTypeTab = $('.sitesync-cloner-tab');
+    const $postTypeSelect = $('#sitesync-cloner-post-type');
     const $searchInput = $('#sitesync-cloner-search');
     const $contentGrid = $('#sitesync-cloner-content-grid');
     const $loadingIndicator = $('#sitesync-cloner-loading');
     const $selectedCount = $('#sitesync-cloner-selected-count');
+    
+    // Pagination tracking
+    let currentPage = 1;
+    let totalPages = 0;
     
     // Track selected content items
     let selectedItems = [];
@@ -55,23 +59,20 @@ jQuery(document).ready(function($) {
     }
     
     /**
-     * Handle post type tab clicks
+     * Handle post type dropdown change
      */
-    $postTypeTab.on('click', function(e) {
-        e.preventDefault();
-        
-        // Update active tab
-        $postTypeTab.removeClass('active');
-        $(this).addClass('active');
-        
+    $postTypeSelect.on('change', function() {
         // Get selected post type
-        const postType = $(this).data('post-type');
+        const postType = $(this).val();
         
         // Clear search input
         $searchInput.val('');
         
+        // Reset to page 1 when changing post type
+        currentPage = 1;
+        
         // Load posts for this post type
-        loadPosts(postType, '');
+        loadPosts(postType, '', currentPage);
     });
     
     /**
@@ -81,26 +82,32 @@ jQuery(document).ready(function($) {
     $searchInput.on('input', function() {
         const searchTerm = $(this).val();
         
-        // Get current post type
-        const postType = $('.sitesync-cloner-tab.active').data('post-type');
+        // Get current post type from dropdown
+        const postType = $postTypeSelect.val();
         
         // Clear previous timer
         clearTimeout(searchTimer);
         
+        // Reset to page 1 when searching
+        currentPage = 1;
+        
         // Set new timer for debouncing
         searchTimer = setTimeout(function() {
-            loadPosts(postType, searchTerm);
+            loadPosts(postType, searchTerm, currentPage);
         }, 300); // 300ms delay for debouncing
     });
     
     /**
-     * Load posts for a post type with optional search
+     * Load posts for a post type with optional search and pagination
      */
-    function loadPosts(postType, searchTerm = '') {
+    function loadPosts(postType, searchTerm = '', page = 1) {
         // Clear current content grid
         $contentGrid.empty();
         
-        // Reset selected items
+        // Remember the current page
+        currentPage = page;
+        
+        // Reset selected items if changing page or filters
         selectedItems = [];
         updateSelectedCount();
         
@@ -114,14 +121,17 @@ jQuery(document).ready(function($) {
                 action: 'sitesync_cloner_load_posts',
                 post_type: postType,
                 search: searchTerm,
+                page: page,
                 nonce: siteSyncClonerAdmin.nonce
             },
             success: function(response) {
                 $loadingIndicator.hide();
                 
                 if (response.success && response.data) {
+                    const data = response.data;
+                    
                     // Handle no results
-                    if (response.data.length === 0) {
+                    if (!data.posts || data.posts.length === 0) {
                         const emptyMessage = searchTerm 
                             ? 'No content found matching "' + searchTerm + '"' 
                             : 'No content found for this post type';
@@ -130,7 +140,7 @@ jQuery(document).ready(function($) {
                         showNotice($exportNotice, emptyMessage, 'info');
                     } else {
                         // Add content cards to grid
-                        $.each(response.data, function(index, post) {
+                        $.each(data.posts, function(index, post) {
                             const cardHtml = `
                                 <div class="sitesync-cloner-content-card" data-id="${post.id}">
                                     <input type="checkbox" class="sitesync-cloner-card-checkbox" id="content-${post.id}" value="${post.id}">
@@ -142,6 +152,17 @@ jQuery(document).ready(function($) {
                             `;
                             $contentGrid.append(cardHtml);
                         });
+                        
+                        // Save pagination info
+                        if (data.pagination) {
+                            totalPages = data.pagination.total_pages;
+                            currentPage = data.pagination.current_page;
+                            
+                            // Add pagination controls if more than one page
+                            if (totalPages > 1) {
+                                addPaginationControls(data.pagination, postType, searchTerm);
+                            }
+                        }
                         
                         // Add click handlers to cards
                         initializeCardHandlers();
@@ -156,6 +177,43 @@ jQuery(document).ready(function($) {
                 $loadingIndicator.hide();
                 $contentGrid.html('<div class="sitesync-cloner-empty-message">Error loading content.</div>');
                 showNotice($exportNotice, 'Error loading content.', 'error');
+            }
+        });
+    }
+    
+    /**
+     * Add pagination controls to the content grid
+     */
+    function addPaginationControls(pagination, postType, searchTerm) {
+        const currentPage = pagination.current_page;
+        const totalPages = pagination.total_pages;
+        const totalPosts = pagination.total_posts;
+        
+        // Create pagination container
+        const paginationHtml = `
+            <div class="sitesync-cloner-pagination">
+                <div class="sitesync-cloner-pagination-info">
+                    Showing page ${currentPage} of ${totalPages} (${totalPosts} total items)
+                </div>
+                <div class="sitesync-cloner-pagination-buttons">
+                    ${currentPage > 1 ? '<button class="button sitesync-cloner-prev-page">Previous</button>' : ''}
+                    ${currentPage < totalPages ? '<button class="button sitesync-cloner-next-page">Next</button>' : ''}
+                </div>
+            </div>
+        `;
+        
+        $contentGrid.append(paginationHtml);
+        
+        // Add click handlers for pagination buttons
+        $('.sitesync-cloner-prev-page').on('click', function() {
+            if (currentPage > 1) {
+                loadPosts(postType, searchTerm, currentPage - 1);
+            }
+        });
+        
+        $('.sitesync-cloner-next-page').on('click', function() {
+            if (currentPage < totalPages) {
+                loadPosts(postType, searchTerm, currentPage + 1);
             }
         });
     }
