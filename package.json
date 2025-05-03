@@ -1,0 +1,32 @@
+{
+  "name": "sitesync-cloner",
+  "version": "1.0.0",
+  "description": "WordPress plugin for content migration via JSON export/import",
+  "main": "index.js",
+  "scripts": {
+    "css-minify": "postcss assets/css/admin.css -o dist/css/admin.min.css --use cssnano --no-map",
+    "js-minify": "terser assets/js/admin.js -o dist/js/admin.min.js",
+    "prebuild": "rimraf dist && mkdir -p dist/css dist/js dist/includes dist/languages",
+    "build": "npm run css-minify && npm run js-minify && node scripts/copy-files.js",
+    "export": "npm run build && node scripts/create-zip.js"
+  },
+  "keywords": [
+    "wordpress",
+    "plugin",
+    "content",
+    "migration",
+    "export",
+    "import"
+  ],
+  "author": "",
+  "license": "GPL-2.0-or-later",
+  "devDependencies": {
+    "postcss": "^8.4.31",
+    "postcss-cli": "^10.1.0",
+    "cssnano": "^6.0.1",
+    "terser": "^5.24.0",
+    "rimraf": "^5.0.5",
+    "fs-extra": "^11.1.1",
+    "archiver": "^6.0.1"
+  }
+}
