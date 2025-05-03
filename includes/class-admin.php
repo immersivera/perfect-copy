@@ -94,6 +94,7 @@ class SiteSync_Cloner_Admin {
                 'i18n'      => array(
                     'exportSuccess'     => __( 'Export generated successfully!', 'sitesync-cloner' ),
                     'exportError'       => __( 'Error generating export.', 'sitesync-cloner' ),
+                    'batchExportSuccess'=> __( 'Exported {count} items successfully!', 'sitesync-cloner' ),
                     'copySuccess'       => __( 'Export code copied to clipboard!', 'sitesync-cloner' ),
                     'copyError'         => __( 'Error copying to clipboard.', 'sitesync-cloner' ),
                     'saveSuccess'       => __( 'Export saved to file!', 'sitesync-cloner' ),
@@ -103,6 +104,7 @@ class SiteSync_Cloner_Admin {
                     'validationSuccess' => __( 'JSON validated successfully!', 'sitesync-cloner' ),
                     'validationError'   => __( 'Invalid JSON format or missing required fields.', 'sitesync-cloner' ),
                     'importSuccess'     => __( 'Content imported successfully!', 'sitesync-cloner' ),
+                    'batchImportSuccess'=> __( 'Imported {count} items successfully!', 'sitesync-cloner' ),
                     'importError'       => __( 'Error importing content.', 'sitesync-cloner' ),
                     'downloadingMedia'  => __( 'Downloading media files...', 'sitesync-cloner' ),
                     'processingContent' => __( 'Processing content...', 'sitesync-cloner' ),
@@ -153,12 +155,15 @@ class SiteSync_Cloner_Admin {
                     </div>
                     
                     <div class="sitesync-cloner-form-row">
-                        <label for="sitesync-cloner-post-select"><?php esc_html_e( 'Select Content:', 'sitesync-cloner' ); ?></label>
-                        <select id="sitesync-cloner-post-select" name="post_id" required size="8">
-                            <option value=""><?php esc_html_e( 'Select content to export', 'sitesync-cloner' ); ?></option>
-                        </select>
+                        <label><?php esc_html_e( 'Select Content:', 'sitesync-cloner' ); ?></label>
+                        <div id="sitesync-cloner-content-grid" class="sitesync-cloner-content-grid">
+                            <div class="sitesync-cloner-empty-message"><?php esc_html_e( 'No content available. Select a content type above or try a different search term.', 'sitesync-cloner' ); ?></div>
+                        </div>
                         <div id="sitesync-cloner-loading" class="sitesync-cloner-loading" style="display: none;">
                             <span class="spinner is-active"></span> <?php esc_html_e( 'Loading...', 'sitesync-cloner' ); ?>
+                        </div>
+                        <div class="sitesync-cloner-selection-info">
+                            <span id="sitesync-cloner-selected-count">0</span> <?php esc_html_e( 'items selected', 'sitesync-cloner' ); ?>
                         </div>
                     </div>
                     
@@ -264,32 +269,71 @@ class SiteSync_Cloner_Admin {
             wp_send_json_error( array( 'message' => __( 'Security check failed.', 'sitesync-cloner' ) ) );
         }
 
-        // Check if post ID is provided.
-        if ( ! isset( $_POST['post_id'] ) ) {
-            wp_send_json_error( array( 'message' => __( 'No post selected.', 'sitesync-cloner' ) ) );
-        }
-
-        $post_id = intval( $_POST['post_id'] );
-
         // Initialize exporter.
         $exporter = new SiteSync_Cloner_Exporter();
         
-        // Generate export.
-        $export_data = $exporter->export_post( $post_id );
-
-        if ( is_wp_error( $export_data ) ) {
-            wp_send_json_error( array( 'message' => $export_data->get_error_message() ) );
+        // Check if multiple post IDs are provided (batch export)
+        if ( isset( $_POST['post_ids'] ) && is_array( $_POST['post_ids'] ) ) {
+            // Sanitize post IDs
+            $post_ids = array_map( 'intval', $_POST['post_ids'] );
+            
+            // Generate batch export
+            $export_data = $exporter->export_batch( $post_ids );
+            
+            if ( is_wp_error( $export_data ) ) {
+                wp_send_json_error( array( 'message' => $export_data->get_error_message() ) );
+            }
+            
+            // Process JSON with JSON processor.
+            $json_processor = new SiteSync_Cloner_JSON_Processor();
+            $json = $json_processor->encode( $export_data );
+            
+            if ( is_wp_error( $json ) ) {
+                wp_send_json_error( array( 'message' => $json->get_error_message() ) );
+            }
+            
+            $summary = sprintf(
+                __( 'Exported %1$d items successfully. %2$s', 'sitesync-cloner' ),
+                count( $export_data['items'] ),
+                isset( $export_data['errors'] ) ? sprintf( __( 'Failed to export %d items.', 'sitesync-cloner' ), count( $export_data['errors'] ) ) : ''
+            );
+            
+            wp_send_json_success( array( 
+                'json' => $json,
+                'is_batch' => true,
+                'count' => count( $export_data['items'] ),
+                'summary' => $summary
+            ) );
+        } 
+        // Single post export (for backward compatibility)
+        else if ( isset( $_POST['post_id'] ) ) {
+            $post_id = intval( $_POST['post_id'] );
+            
+            // Generate export.
+            $export_data = $exporter->export_post( $post_id );
+    
+            if ( is_wp_error( $export_data ) ) {
+                wp_send_json_error( array( 'message' => $export_data->get_error_message() ) );
+            }
+    
+            // Process JSON with JSON processor.
+            $json_processor = new SiteSync_Cloner_JSON_Processor();
+            $json = $json_processor->encode( $export_data );
+    
+            if ( is_wp_error( $json ) ) {
+                wp_send_json_error( array( 'message' => $json->get_error_message() ) );
+            }
+    
+            wp_send_json_success( array( 
+                'json' => $json,
+                'is_batch' => false,
+                'count' => 1
+            ) );
+        } 
+        // No post ID or IDs provided
+        else {
+            wp_send_json_error( array( 'message' => __( 'No post ID(s) provided.', 'sitesync-cloner' ) ) );
         }
-
-        // Process JSON with JSON processor.
-        $json_processor = new SiteSync_Cloner_JSON_Processor();
-        $json = $json_processor->encode( $export_data );
-
-        if ( is_wp_error( $json ) ) {
-            wp_send_json_error( array( 'message' => $json->get_error_message() ) );
-        }
-
-        wp_send_json_success( array( 'json' => $json ) );
     }
 
     /**
@@ -316,25 +360,61 @@ class SiteSync_Cloner_Admin {
             wp_send_json_error( array( 'message' => $import_data->get_error_message() ) );
         }
 
-        // Validate the import data.
+        // Determine if this is a batch import
+        $is_batch = isset( $import_data['batch_id'] ) && isset( $import_data['items'] ) && is_array( $import_data['items'] );
+        
+        // Initialize validator
         $validator = new SiteSync_Cloner_Importer();
-        $validation = $validator->validate_import_data( $import_data );
-
-        if ( is_wp_error( $validation ) ) {
-            wp_send_json_error( array( 'message' => $validation->get_error_message() ) );
-        }
-
-        // Get media count.
         $media_handler = new SiteSync_Cloner_Media_Handler();
-        $media_count = $media_handler->count_media_in_content( $import_data );
-
-        wp_send_json_success(
-            array(
-                'title'      => $import_data['post_title'],
-                'type'       => $import_data['post_type'],
+        
+        if ( $is_batch ) {
+            // Validate the batch data
+            $validation = $validator->validate_batch_data( $import_data );
+            
+            if ( is_wp_error( $validation ) ) {
+                wp_send_json_error( array( 'message' => $validation->get_error_message() ) );
+            }
+            
+            // Calculate total media count
+            $media_count = 0;
+            $titles = array();
+            $types = array();
+            
+            foreach ( $import_data['items'] as $item ) {
+                $media_count += $media_handler->count_media_in_content( $item );
+                $titles[] = $item['post_title'];
+                if ( ! in_array( $item['post_type'], $types ) ) {
+                    $types[] = $item['post_type'];
+                }
+            }
+            
+            wp_send_json_success( array(
+                'is_batch'    => true,
+                'count'       => count( $import_data['items'] ),
+                'titles'      => $titles,
+                'types'       => $types,
                 'media_count' => $media_count,
-            )
-        );
+                'summary'     => sprintf( __( 'Ready to import %d items', 'sitesync-cloner' ), count( $import_data['items'] ) ),
+            ) );
+        } else {
+            // Handle single item import
+            $validation = $validator->validate_import_data( $import_data );
+            
+            if ( is_wp_error( $validation ) ) {
+                wp_send_json_error( array( 'message' => $validation->get_error_message() ) );
+            }
+            
+            // Get media count
+            $media_count = $media_handler->count_media_in_content( $import_data );
+            
+            wp_send_json_success( array(
+                'is_batch'    => false,
+                'count'       => 1,
+                'title'       => $import_data['post_title'],
+                'type'        => $import_data['post_type'],
+                'media_count' => $media_count,
+            ) );
+        }
     }
 
     /**
@@ -414,19 +494,71 @@ class SiteSync_Cloner_Admin {
         // Initialize importer.
         $importer = new SiteSync_Cloner_Importer();
         
-        // Import the content.
-        $result = $importer->import_content( $import_data );
-
-        if ( is_wp_error( $result ) ) {
-            wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+        // Determine if this is a batch import
+        $is_batch = isset( $import_data['batch_id'] ) && isset( $import_data['items'] ) && is_array( $import_data['items'] );
+        
+        if ( $is_batch ) {
+            // Perform batch import
+            $results = $importer->import_batch( $import_data );
+            
+            if ( is_wp_error( $results ) ) {
+                wp_send_json_error( array( 'message' => $results->get_error_message() ) );
+            }
+            
+            // Calculate success summary
+            $success_count = count( $results['success'] );
+            $error_count = count( $results['errors'] );
+            
+            $summary = sprintf(
+                _n(
+                    'Imported %d item successfully.',
+                    'Imported %d items successfully.',
+                    $success_count,
+                    'sitesync-cloner'
+                ),
+                $success_count
+            );
+            
+            if ( $error_count > 0 ) {
+                $summary .= ' ' . sprintf(
+                    _n(
+                        '%d item failed to import.',
+                        '%d items failed to import.',
+                        $error_count,
+                        'sitesync-cloner'
+                    ),
+                    $error_count
+                );
+            }
+            
+            // Get first successful import for viewing link
+            $first_import = ! empty( $results['success'] ) ? reset( $results['success'] ) : null;
+            
+            wp_send_json_success( array(
+                'is_batch'    => true,
+                'success_count' => $success_count,
+                'error_count'  => $error_count,
+                'summary'     => $summary,
+                'success'     => $results['success'],
+                'errors'      => $results['errors'],
+                'post_id'     => $first_import ? $first_import['post_id'] : null,
+                'edit_url'    => $first_import ? $first_import['edit_url'] : '',
+            ) );
+        } else {
+            // Handle single item import
+            $result = $importer->import_content( $import_data );
+    
+            if ( is_wp_error( $result ) ) {
+                wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+            }
+    
+            wp_send_json_success( array(
+                'is_batch'   => false,
+                'post_id'    => $result,
+                'post_url'   => get_permalink( $result ),
+                'edit_url'   => get_edit_post_link( $result, 'raw' ),
+                'summary'    => __( 'Content imported successfully!', 'sitesync-cloner' ),
+            ) );
         }
-
-        wp_send_json_success(
-            array(
-                'post_id'   => $result,
-                'post_url'  => get_permalink( $result ),
-                'edit_url'  => get_edit_post_link( $result, 'raw' ),
-            )
-        );
     }
 }

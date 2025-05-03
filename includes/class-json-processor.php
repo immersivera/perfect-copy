@@ -58,18 +58,42 @@ class SiteSync_Cloner_JSON_Processor {
             return new WP_Error( 'json_decode_failed', __( 'Failed to decode JSON.', 'sitesync-cloner' ) );
         }
 
-        // Validate required fields.
-        $required_fields = array( 'post_title', 'post_content', 'post_type' );
-        foreach ( $required_fields as $field ) {
-            if ( ! isset( $data[ $field ] ) ) {
-                return new WP_Error(
-                    'missing_required_field',
-                    sprintf(
-                        /* translators: %s: Field name */
-                        __( 'Missing required field: %s', 'sitesync-cloner' ),
-                        $field
-                    )
-                );
+        // Check if this is a batch import
+        if ( isset( $data['batch_id'] ) && isset( $data['items'] ) && is_array( $data['items'] ) ) {
+            // Batch import - validate that we have items
+            if ( empty( $data['items'] ) ) {
+                return new WP_Error( 'empty_batch', __( 'Batch import contains no items.', 'sitesync-cloner' ) );
+            }
+            
+            // Validate the first item to make sure it has the required fields
+            $first_item = reset( $data['items'] );
+            $required_fields = array( 'post_title', 'post_content', 'post_type' );
+            foreach ( $required_fields as $field ) {
+                if ( ! isset( $first_item[ $field ] ) ) {
+                    return new WP_Error(
+                        'missing_required_field',
+                        sprintf(
+                            /* translators: %s: Field name */
+                            __( 'Missing required field in items: %s', 'sitesync-cloner' ),
+                            $field
+                        )
+                    );
+                }
+            }
+        } else {
+            // Single item import - validate required fields
+            $required_fields = array( 'post_title', 'post_content', 'post_type' );
+            foreach ( $required_fields as $field ) {
+                if ( ! isset( $data[ $field ] ) ) {
+                    return new WP_Error(
+                        'missing_required_field',
+                        sprintf(
+                            /* translators: %s: Field name */
+                            __( 'Missing required field: %s', 'sitesync-cloner' ),
+                            $field
+                        )
+                    );
+                }
             }
         }
 

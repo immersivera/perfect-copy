@@ -147,6 +147,80 @@
     color: #fff;
 }
 
+/* Content grid */
+.sitesync-cloner-content-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+
+@media screen and (min-width: 600px) {
+    .sitesync-cloner-content-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.sitesync-cloner-content-card {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 12px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.sitesync-cloner-content-card:hover {
+    border-color: #0073aa;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+.sitesync-cloner-content-card.selected {
+    background-color: #f0f6fc;
+    border-color: #0073aa;
+}
+
+.sitesync-cloner-card-checkbox {
+    margin-right: 10px !important;
+}
+
+.sitesync-cloner-card-info {
+    flex-grow: 1;
+}
+
+.sitesync-cloner-card-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.sitesync-cloner-card-meta {
+    color: #666;
+    font-size: 12px;
+}
+
+.sitesync-cloner-empty-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 30px;
+    color: #666;
+}
+
+.sitesync-cloner-selection-info {
+    margin-top: 10px;
+    font-weight: 600;
+    color: #0073aa;
+    margin-bottom: 15px;
+}
+
 /* Loading indicator */
 .sitesync-cloner-loading {
     display: flex;

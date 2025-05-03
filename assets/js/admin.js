@@ -11,8 +11,12 @@ jQuery(document).ready(function($) {
     const $exportNotice = $('#sitesync-cloner-export-notice');
     const $postTypeTab = $('.sitesync-cloner-tab');
     const $searchInput = $('#sitesync-cloner-search');
-    const $postSelect = $('#sitesync-cloner-post-select');
+    const $contentGrid = $('#sitesync-cloner-content-grid');
     const $loadingIndicator = $('#sitesync-cloner-loading');
+    const $selectedCount = $('#sitesync-cloner-selected-count');
+    
+    // Track selected content items
+    let selectedItems = [];
     
     // Import functionality
     const $validateImportBtn = $('#sitesync-cloner-validate-import');
@@ -93,8 +97,12 @@ jQuery(document).ready(function($) {
      * Load posts for a post type with optional search
      */
     function loadPosts(postType, searchTerm = '') {
-        // Clear current options
-        $postSelect.find('option:not(:first)').remove();
+        // Clear current content grid
+        $contentGrid.empty();
+        
+        // Reset selected items
+        selectedItems = [];
+        updateSelectedCount();
         
         // Show loading indicator
         $loadingIndicator.show();
@@ -112,32 +120,107 @@ jQuery(document).ready(function($) {
                 $loadingIndicator.hide();
                 
                 if (response.success && response.data) {
-                    // Add options to select
-                    $.each(response.data, function(index, post) {
-                        $postSelect.append($('<option>', {
-                            value: post.id,
-                            text: post.title
-                        }));
-                    });
-                    
                     // Handle no results
                     if (response.data.length === 0) {
-                        if (searchTerm) {
-                            showNotice($exportNotice, 'No content found matching "' + searchTerm + '"', 'info');
-                        } else {
-                            showNotice($exportNotice, 'No content found for this post type', 'info');
-                        }
+                        const emptyMessage = searchTerm 
+                            ? 'No content found matching "' + searchTerm + '"' 
+                            : 'No content found for this post type';
+                            
+                        $contentGrid.html('<div class="sitesync-cloner-empty-message">' + emptyMessage + '</div>');
+                        showNotice($exportNotice, emptyMessage, 'info');
+                    } else {
+                        // Add content cards to grid
+                        $.each(response.data, function(index, post) {
+                            const cardHtml = `
+                                <div class="sitesync-cloner-content-card" data-id="${post.id}">
+                                    <input type="checkbox" class="sitesync-cloner-card-checkbox" id="content-${post.id}" value="${post.id}">
+                                    <div class="sitesync-cloner-card-info">
+                                        <div class="sitesync-cloner-card-title">${post.title}</div>
+                                        <div class="sitesync-cloner-card-meta">${post.meta || ''}</div>
+                                    </div>
+                                </div>
+                            `;
+                            $contentGrid.append(cardHtml);
+                        });
+                        
+                        // Add click handlers to cards
+                        initializeCardHandlers();
                     }
                 } else {
                     const errorMsg = response.data ? response.data.message : 'Error loading content.';
+                    $contentGrid.html('<div class="sitesync-cloner-empty-message">' + errorMsg + '</div>');
                     showNotice($exportNotice, errorMsg, 'error');
                 }
             },
             error: function() {
                 $loadingIndicator.hide();
+                $contentGrid.html('<div class="sitesync-cloner-empty-message">Error loading content.</div>');
                 showNotice($exportNotice, 'Error loading content.', 'error');
             }
         });
+    }
+    
+    /**
+     * Initialize click handlers for content cards
+     */
+    function initializeCardHandlers() {
+        // Handle checkbox clicks
+        $('.sitesync-cloner-card-checkbox').on('change', function(e) {
+            e.stopPropagation();
+            const $card = $(this).closest('.sitesync-cloner-content-card');
+            const contentId = $card.data('id');
+            
+            if ($(this).is(':checked')) {
+                $card.addClass('selected');
+                addSelectedItem(contentId);
+            } else {
+                $card.removeClass('selected');
+                removeSelectedItem(contentId);
+            }
+        });
+        
+        // Handle card clicks (except on the checkbox)
+        $('.sitesync-cloner-content-card').on('click', function(e) {
+            if (!$(e.target).is('input')) {
+                const $checkbox = $(this).find('.sitesync-cloner-card-checkbox');
+                $checkbox.prop('checked', !$checkbox.prop('checked')).trigger('change');
+            }
+        });
+    }
+    
+    /**
+     * Add an item to the selected items array
+     */
+    function addSelectedItem(id) {
+        if (!selectedItems.includes(id)) {
+            selectedItems.push(id);
+            updateSelectedCount();
+        }
+    }
+    
+    /**
+     * Remove an item from the selected items array
+     */
+    function removeSelectedItem(id) {
+        const index = selectedItems.indexOf(id);
+        if (index !== -1) {
+            selectedItems.splice(index, 1);
+            updateSelectedCount();
+        }
+    }
+    
+    /**
+     * Update the selected items count display
+     */
+    function updateSelectedCount() {
+        $selectedCount.text(selectedItems.length);
+        
+        // Enable/disable generate button based on selection
+        if (selectedItems.length > 0) {
+            $generateExportBtn.prop('disabled', false);
+        } else {
+            $generateExportBtn.prop('disabled', true);
+        }
     }
     
     // Initialize with the first post type (posts)
@@ -149,9 +232,7 @@ jQuery(document).ready(function($) {
     $generateExportBtn.on('click', function(e) {
         e.preventDefault();
         
-        const postId = $('#sitesync-cloner-post-select').val();
-        
-        if (!postId) {
+        if (selectedItems.length === 0) {
             showNotice($exportNotice, siteSyncClonerAdmin.i18n.exportError + ' ' + 
                        'Please select content to export.', 'error');
             return;
@@ -160,15 +241,25 @@ jQuery(document).ready(function($) {
         // Disable button and show loading state
         $generateExportBtn.prop('disabled', true).text('Generating...');
         
+        // Prepare data for batch or single export
+        let ajaxData = {
+            action: 'sitesync_cloner_export',
+            nonce: siteSyncClonerAdmin.nonce
+        };
+        
+        if (selectedItems.length > 1) {
+            // Use batch export
+            ajaxData.post_ids = selectedItems;
+        } else {
+            // Use single export for backward compatibility
+            ajaxData.post_id = selectedItems[0];
+        }
+        
         // AJAX request to generate export code
         $.ajax({
             url: siteSyncClonerAdmin.ajaxUrl,
             type: 'POST',
-            data: {
-                action: 'sitesync_cloner_export',
-                post_id: postId,
-                nonce: siteSyncClonerAdmin.nonce
-            },
+            data: ajaxData,
             success: function(response) {
                 $generateExportBtn.prop('disabled', false).text('Generate Export Code');
                 
@@ -179,7 +270,13 @@ jQuery(document).ready(function($) {
                     // Enable save and copy buttons
                     $copyExportBtn.prop('disabled', false);
                     $saveExportBtn.prop('disabled', false);
-                    showNotice($exportNotice, siteSyncClonerAdmin.i18n.exportSuccess, 'success');
+                    
+                    // Show appropriate success message
+                    if (response.data.is_batch && response.data.count > 1) {
+                        showNotice($exportNotice, response.data.summary || siteSyncClonerAdmin.i18n.batchExportSuccess.replace('{count}', response.data.count), 'success');
+                    } else {
+                        showNotice($exportNotice, siteSyncClonerAdmin.i18n.exportSuccess, 'success');
+                    }
                     
                     // Scroll to export code
                     $('html, body').animate({
@@ -320,13 +417,24 @@ jQuery(document).ready(function($) {
                 $validateImportBtn.prop('disabled', false).text('Validate');
                 
                 if (response.success && response.data) {
-                    // Show import preview
-                    $previewTitle.text(response.data.title);
-                    $previewType.text(response.data.type);
-                    $previewMediaCount.text(response.data.media_count);
-                    $importPreview.show();
-                    
-                    showNotice($importNotice, siteSyncClonerAdmin.i18n.validationSuccess, 'success');
+                    // Check if it's a batch import
+                    if (response.data.is_batch) {
+                        // Show batch preview
+                        $previewTitle.html('<strong>' + response.data.count + '</strong> items: ' + 
+                                          response.data.titles.slice(0, 3).join(', ') + 
+                                          (response.data.count > 3 ? '...' : ''));
+                        $previewType.text(response.data.types.join(', '));
+                        $previewMediaCount.text(response.data.media_count);
+                        $importPreview.show();
+                        showNotice($importNotice, response.data.summary, 'success');
+                    } else {
+                        // Show single item preview
+                        $previewTitle.text(response.data.title);
+                        $previewType.text(response.data.type);
+                        $previewMediaCount.text(response.data.media_count);
+                        $importPreview.show();
+                        showNotice($importNotice, siteSyncClonerAdmin.i18n.validationSuccess, 'success');
+                    }
                     
                     // Scroll to preview
                     $('html, body').animate({
@@ -395,7 +503,14 @@ jQuery(document).ready(function($) {
                 
                 if (response.success && response.data) {
                     responseData = response.data;
-                    showNotice($importNotice, siteSyncClonerAdmin.i18n.importSuccess, 'success');
+                    
+                    // Display appropriate success message
+                    if (response.data.is_batch) {
+                        showNotice($importNotice, response.data.summary, 'success');
+                    } else {
+                        showNotice($importNotice, siteSyncClonerAdmin.i18n.importSuccess, 'success');
+                    }
+                    
                     checkIfReadyToShowResult();
                 } else {
                     const errorMsg = response.data ? response.data.message : siteSyncClonerAdmin.i18n.importError;
@@ -419,8 +534,31 @@ jQuery(document).ready(function($) {
                 // Both progress animation and server response are complete
                 $importResult.show();
                 
-                // Use edit URL instead of view URL
-                $viewImportedBtn.attr('href', responseData.edit_url);
+                // Update result view based on whether it's a batch or single import
+                if (responseData.is_batch) {
+                    // Show batch import results
+                    const successCount = responseData.success_count || 0;
+                    const importCompletionMsg = successCount > 1 
+                        ? 'Successfully imported ' + successCount + ' items!'
+                        : 'Content imported successfully!';
+                    
+                    $('#sitesync-cloner-import-result h3').text('Batch Import Complete');
+                    $('#sitesync-cloner-import-result p').first().text(importCompletionMsg);
+                    
+                    // If we have errors, display them
+                    if (responseData.error_count && responseData.error_count > 0) {
+                        $('#sitesync-cloner-import-result').append('<p class="import-errors">' + 
+                                                                 responseData.error_count + ' items failed to import</p>');
+                    }
+                }
+                
+                // Use edit URL instead of view URL if available
+                if (responseData.edit_url) {
+                    $viewImportedBtn.attr('href', responseData.edit_url);
+                    $viewImportedBtn.text(responseData.is_batch ? 'View Imported Content' : 'Edit Imported Content');
+                } else {
+                    $viewImportedBtn.hide();
+                }
                 
                 // Scroll to result
                 $('html, body').animate({

@@ -30,6 +30,45 @@ class SiteSync_Cloner_Importer {
     }
 
     /**
+     * Validate batch import data.
+     *
+     * @param array $batch_data The batch import data.
+     * @return bool|WP_Error True on success, WP_Error on failure.
+     */
+    public function validate_batch_data( $batch_data ) {
+        // Check if this is batch data
+        if ( ! isset( $batch_data['batch_id'] ) || ! isset( $batch_data['items'] ) || ! is_array( $batch_data['items'] ) ) {
+            // This might be a single item import (old format), let's validate it as a single item
+            return $this->validate_import_data( $batch_data );
+        }
+        
+        // Validate count
+        if ( empty( $batch_data['items'] ) ) {
+            return new WP_Error(
+                'empty_batch',
+                __( 'Batch import contains no valid items.', 'sitesync-cloner' )
+            );
+        }
+        
+        // Validate each item in the batch
+        foreach ( $batch_data['items'] as $index => $item ) {
+            $validation = $this->validate_import_data( $item );
+            if ( is_wp_error( $validation ) ) {
+                return new WP_Error(
+                    $validation->get_error_code(),
+                    sprintf(
+                        __( 'Error in item %d: %s', 'sitesync-cloner' ),
+                        $index + 1,
+                        $validation->get_error_message()
+                    )
+                );
+            }
+        }
+        
+        return true;
+    }
+    
+    /**
      * Validate import data.
      *
      * @param array $import_data The import data.
@@ -68,6 +107,61 @@ class SiteSync_Cloner_Importer {
         return true;
     }
 
+    /**
+     * Import batch content.
+     *
+     * @param array $batch_data The batch import data.
+     * @return array|WP_Error Array of imported post IDs on success, WP_Error on failure.
+     */
+    public function import_batch( $batch_data ) {
+        // Check if this is a single item import (old format)
+        if ( ! isset( $batch_data['batch_id'] ) || ! isset( $batch_data['items'] ) || ! is_array( $batch_data['items'] ) ) {
+            // This is a single item, use the regular import method
+            $result = $this->import_content( $batch_data );
+            return is_wp_error( $result ) ? $result : array( 'success' => array(
+                array(
+                    'post_id' => $result,
+                    'edit_url' => get_edit_post_link( $result, 'raw' ),
+                    'view_url' => get_permalink( $result ),
+                )
+            ), 'errors' => array() );
+        }
+        
+        // Validate batch data
+        $validation = $this->validate_batch_data( $batch_data );
+        if ( is_wp_error( $validation ) ) {
+            return $validation;
+        }
+        
+        // Process all items
+        $results = array(
+            'success' => array(),
+            'errors' => array(),
+        );
+        
+        foreach ( $batch_data['items'] as $index => $item ) {
+            $result = $this->import_content( $item );
+            
+            if ( is_wp_error( $result ) ) {
+                $results['errors'][] = array(
+                    'index' => $index,
+                    'error' => $result->get_error_message(),
+                    'item_title' => isset($item['post_title']) ? $item['post_title'] : 'Unknown',
+                );
+            } else {
+                $results['success'][] = array(
+                    'index' => $index,
+                    'post_id' => $result,
+                    'post_title' => get_the_title($result),
+                    'edit_url' => get_edit_post_link($result, 'raw'),
+                    'view_url' => get_permalink($result),
+                );
+            }
+        }
+        
+        return $results;
+    }
+    
     /**
      * Import content.
      *

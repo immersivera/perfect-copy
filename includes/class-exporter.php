@@ -16,6 +16,43 @@ if ( ! defined( 'ABSPATH' ) ) {
 class SiteSync_Cloner_Exporter {
 
     /**
+     * Export multiple posts or pages.
+     *
+     * @param array $post_ids Array of post IDs to export.
+     * @return array Array containing export data for each post and batch metadata.
+     */
+    public function export_batch( $post_ids ) {
+        if ( ! is_array( $post_ids ) || empty( $post_ids ) ) {
+            return new WP_Error( 'invalid_post_ids', __( 'No valid post IDs provided for export.', 'sitesync-cloner' ) );
+        }
+        
+        $batch_data = array(
+            'batch_id' => uniqid( 'batch_' ),
+            'export_date' => current_time( 'mysql' ),
+            'export_version' => SITESYNC_CLONER_VERSION,
+            'count' => count( $post_ids ),
+            'items' => array(),
+        );
+        
+        foreach ( $post_ids as $post_id ) {
+            $export_result = $this->export_post( $post_id );
+            
+            if ( ! is_wp_error( $export_result ) ) {
+                // Add to batch items
+                $batch_data['items'][] = $export_result;
+            } else {
+                // Log the error but continue with other posts
+                $batch_data['errors'][] = array(
+                    'post_id' => $post_id,
+                    'message' => $export_result->get_error_message(),
+                );
+            }
+        }
+        
+        return $batch_data;
+    }
+    
+    /**
      * Export a post or page.
      *
      * @param int $post_id The post ID to export.
