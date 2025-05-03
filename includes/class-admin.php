@@ -30,9 +30,14 @@ class SiteSync_Cloner_Admin {
         add_action( 'wp_ajax_sitesync_cloner_validate_import', array( $this, 'handle_validate_import_ajax' ) );
         add_action( 'wp_ajax_sitesync_cloner_import', array( $this, 'handle_import_ajax' ) );
         add_action( 'wp_ajax_sitesync_cloner_load_posts', array( $this, 'handle_load_posts_ajax' ) );
+        add_action( 'wp_ajax_sitesync_cloner_quick_export', array( $this, 'handle_quick_export_ajax' ) );
+        add_action( 'wp_ajax_sitesync_cloner_clone_post', array( $this, 'handle_clone_post_ajax' ) );
         
         // Register settings
         add_action( 'admin_init', array( $this, 'register_settings' ) );
+        
+        // Add action links to post list tables
+        $this->register_post_actions();
     }
 
     /**
@@ -199,6 +204,12 @@ class SiteSync_Cloner_Admin {
                     'saveSuccess'       => __( 'Export saved to file!', 'sitesync-cloner' ),
                     'saveError'         => __( 'Error saving to file.', 'sitesync-cloner' ),
                     'fileReadSuccess'   => __( 'File read successfully!', 'sitesync-cloner' ),
+                    'quickExportTitle'  => __( 'SiteSync Quick Export', 'sitesync-cloner' ),
+                    'exportGenerating'  => __( 'Generating export...', 'sitesync-cloner' ),
+                    'copyExport'        => __( 'Copy to Clipboard', 'sitesync-cloner' ),
+                    'saveExport'        => __( 'Save to File', 'sitesync-cloner' ),
+                    'copied'            => __( 'Copied!', 'sitesync-cloner' ),
+                    'exportContent'     => __( 'Export Content', 'sitesync-cloner' ),
                     'fileReadError'     => __( 'Error reading file. Please make sure it is a valid JSON file.', 'sitesync-cloner' ),
                     'validationSuccess' => __( 'JSON validated successfully!', 'sitesync-cloner' ),
                     'validationError'   => __( 'Invalid JSON format or missing required fields.', 'sitesync-cloner' ),
@@ -712,6 +723,302 @@ class SiteSync_Cloner_Admin {
         );
 
         wp_send_json_success( $response );
+    }
+
+    /**
+     * Register post action links and buttons for quick exporting
+     */
+    private function register_post_actions() {
+        // Get enabled post types from settings
+        $settings = get_option('sitesync_cloner_settings', array());
+        $enabled_post_types = isset($settings['post_types']) ? $settings['post_types'] : array('post', 'page');
+        
+        // Add action links to post list tables
+        foreach ($enabled_post_types as $post_type) {
+            // Add Export link to row actions
+            add_filter("post_row_actions", array($this, 'add_export_row_action'), 10, 2);
+            
+            // Also add to page row actions if it's a page
+            if ($post_type === 'page') {
+                add_filter("page_row_actions", array($this, 'add_export_row_action'), 10, 2);
+            }
+            
+            // For custom post types
+            if ($post_type !== 'post' && $post_type !== 'page') {
+                add_filter("{$post_type}_row_actions", array($this, 'add_export_row_action'), 10, 2);
+            }
+            
+            // Add meta box to post edit screens
+            add_action("add_meta_boxes_{$post_type}", array($this, 'add_export_meta_box'));
+        }
+    }
+    
+    /**
+     * Add Quick Export and Clone links to row actions
+     */
+    public function add_export_row_action($actions, $post) {
+        // Check if post type is enabled
+        $settings = get_option('sitesync_cloner_settings', array());
+        $enabled_post_types = isset($settings['post_types']) ? $settings['post_types'] : array('post', 'page');
+        
+        if (in_array($post->post_type, $enabled_post_types)) {
+            // Create nonce for security
+            $nonce = wp_create_nonce('sitesync_cloner_quick_export_' . $post->ID);
+            
+            // Create direct download export link
+            $export_url = admin_url('admin-ajax.php?action=sitesync_cloner_quick_export&post_id=' . $post->ID . '&nonce=' . $nonce . '&mode=download');
+            
+            // Add export action link
+            $actions['sitesync_export'] = sprintf(
+                '<a href="%s" class="sitesync-quick-export-download">%s</a>',
+                esc_url($export_url),
+                __('Export', 'sitesync-cloner')
+            );
+            
+            // Add clone action link
+            $clone_nonce = wp_create_nonce('sitesync_cloner_clone_' . $post->ID);
+            $clone_url = admin_url('admin-ajax.php?action=sitesync_cloner_clone_post&post_id=' . $post->ID . '&nonce=' . $clone_nonce);
+            
+            $actions['sitesync_clone'] = sprintf(
+                '<a href="%s" class="sitesync-clone-post">%s</a>',
+                esc_url($clone_url),
+                __('Clone', 'sitesync-cloner')
+            );
+        }
+        
+        return $actions;
+    }
+    
+    /**
+     * Add Export meta box to post edit screens
+     */
+    public function add_export_meta_box($post) {
+        add_meta_box(
+            'sitesync_cloner_export_box',
+            __('SiteSync Cloner', 'sitesync-cloner'),
+            array($this, 'render_export_meta_box'),
+            null,
+            'side',
+            'default'
+        );
+    }
+    
+    /**
+     * Render the export meta box
+     */
+    public function render_export_meta_box($post) {
+        // Create nonce for security
+        $nonce = wp_create_nonce('sitesync_cloner_quick_export_' . $post->ID);
+        
+        // Create export URLs for different modes
+        $export_url = admin_url('admin-ajax.php?action=sitesync_cloner_quick_export&post_id=' . $post->ID . '&nonce=' . $nonce);
+        $download_url = admin_url('admin-ajax.php?action=sitesync_cloner_quick_export&post_id=' . $post->ID . '&nonce=' . $nonce . '&mode=download');
+        
+        // Create clone URL
+        $clone_nonce = wp_create_nonce('sitesync_cloner_clone_' . $post->ID);
+        $clone_url = admin_url('admin-ajax.php?action=sitesync_cloner_clone_post&post_id=' . $post->ID . '&nonce=' . $clone_nonce);
+        
+        // Output meta box content
+        ?>
+        <p><?php esc_html_e('SiteSync Cloner tools for this content.', 'sitesync-cloner'); ?></p>
+        
+        <div class="sitesync-meta-actions">
+            <p><strong><?php esc_html_e('Export Options:', 'sitesync-cloner'); ?></strong></p>
+            <a href="<?php echo esc_url($download_url); ?>" class="button sitesync-download-button">
+                <?php esc_html_e('Download Export File', 'sitesync-cloner'); ?>
+            </a>
+            
+            <p style="margin-top:15px;"><strong><?php esc_html_e('Clone Options:', 'sitesync-cloner'); ?></strong></p>
+            <a href="<?php echo esc_url($clone_url); ?>" class="button button-primary sitesync-clone-button">
+                <?php esc_html_e('Clone This Post', 'sitesync-cloner'); ?>
+            </a>
+            <p class="description"><?php esc_html_e('Creates a duplicate copy of this post as a draft.', 'sitesync-cloner'); ?></p>
+        </div>
+        
+        <div class="sitesync-export-result" style="display:none;margin-top:15px;">
+            <h4><?php esc_html_e('Export Result:', 'sitesync-cloner'); ?></h4>
+        </div>
+        <?php
+    }
+    
+    /**
+     * Handle quick export AJAX request
+     */
+    public function handle_quick_export_ajax() {
+        // Check if post ID is provided
+        if (!isset($_REQUEST['post_id'])) {
+            wp_send_json_error(array('message' => __('No post ID provided.', 'sitesync-cloner')));
+        }
+        
+        // Get post ID and mode (download or json)
+        $post_id = intval($_REQUEST['post_id']);
+        $mode = isset($_REQUEST['mode']) ? sanitize_text_field($_REQUEST['mode']) : 'json';
+        
+        // Verify nonce
+        $nonce = isset($_REQUEST['nonce']) ? sanitize_text_field($_REQUEST['nonce']) : '';
+        if (!wp_verify_nonce($nonce, 'sitesync_cloner_quick_export_' . $post_id)) {
+            wp_send_json_error(array('message' => __('Security check failed.', 'sitesync-cloner')));
+        }
+        
+        // Get post
+        $post = get_post($post_id);
+        if (!$post) {
+            wp_send_json_error(array('message' => __('Post not found.', 'sitesync-cloner')));
+        }
+        
+        // Check if post type is enabled
+        $settings = get_option('sitesync_cloner_settings', array());
+        $enabled_post_types = isset($settings['post_types']) ? $settings['post_types'] : array('post', 'page');
+        if (!in_array($post->post_type, $enabled_post_types)) {
+            wp_send_json_error(array('message' => __('This post type is not enabled for export.', 'sitesync-cloner')));
+        }
+        
+        // Generate export data
+        $exporter = new SiteSync_Cloner_Exporter();
+        $export_data = $exporter->export_post($post_id);
+        
+        if (is_wp_error($export_data)) {
+            wp_send_json_error(array('message' => $export_data->get_error_message()));
+        }
+        
+        // If mode is download, send as file download
+        if ($mode === 'download') {
+            $post_title = get_the_title($post_id);
+            $filename = 'sitesync-export-' . sanitize_title($post_title) . '.json';
+            
+            // Set headers for file download
+            header('Content-Type: application/json');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('Cache-Control: max-age=0');
+            
+            // Output the JSON data and exit
+            echo wp_json_encode($export_data, JSON_PRETTY_PRINT);
+            exit;
+        }
+        
+        // Otherwise, send as JSON response
+        wp_send_json_success(array(
+            'data' => $export_data,
+            'title' => get_the_title($post_id),
+            'message' => __('Export generated successfully!', 'sitesync-cloner')
+        ));
+    }
+
+    /**
+     * Handle clone post AJAX request
+     */
+    public function handle_clone_post_ajax() {
+        // Check if post ID is provided
+        if (!isset($_REQUEST['post_id'])) {
+            wp_die(__('No post ID provided.', 'sitesync-cloner'));
+        }
+        
+        // Get post ID
+        $post_id = intval($_REQUEST['post_id']);
+        
+        // Verify nonce
+        $nonce = isset($_REQUEST['nonce']) ? sanitize_text_field($_REQUEST['nonce']) : '';
+        if (!wp_verify_nonce($nonce, 'sitesync_cloner_clone_' . $post_id)) {
+            wp_die(__('Security check failed.', 'sitesync-cloner'));
+        }
+        
+        // Get post
+        $post = get_post($post_id);
+        if (!$post) {
+            wp_die(__('Post not found.', 'sitesync-cloner'));
+        }
+        
+        // Check if post type is enabled
+        $settings = get_option('sitesync_cloner_settings', array());
+        $enabled_post_types = isset($settings['post_types']) ? $settings['post_types'] : array('post', 'page');
+        if (!in_array($post->post_type, $enabled_post_types)) {
+            wp_die(__('This post type is not enabled for cloning.', 'sitesync-cloner'));
+        }
+        
+        // Get the post data for cloning
+        $post_data = array(
+            'post_title'     => $post->post_title . ' ' . __('(Clone)', 'sitesync-cloner'),
+            'post_content'   => $post->post_content,
+            'post_excerpt'   => $post->post_excerpt,
+            'post_status'    => 'draft', // Always set cloned posts to draft initially
+            'post_type'      => $post->post_type,
+            'post_author'    => $post->post_author,
+            'ping_status'    => $post->ping_status,
+            'comment_status' => $post->comment_status,
+            'post_password'  => $post->post_password,
+            'menu_order'     => $post->menu_order,
+            'to_ping'        => $post->to_ping,
+        );
+        
+        // Check if we should preserve dates
+        $preserve_dates = isset($settings['preserve_dates']) ? $settings['preserve_dates'] : false;
+        if ($preserve_dates) {
+            $post_data['post_date'] = $post->post_date;
+            $post_data['post_date_gmt'] = $post->post_date_gmt;
+        }
+        
+        // Insert the new post
+        $new_post_id = wp_insert_post($post_data);
+        
+        if (is_wp_error($new_post_id)) {
+            wp_die(__('Error cloning post: ', 'sitesync-cloner') . $new_post_id->get_error_message());
+        }
+        
+        // Copy post meta
+        $post_meta = get_post_meta($post_id);
+        if ($post_meta) {
+            foreach ($post_meta as $meta_key => $meta_values) {
+                // Skip internal WordPress meta keys
+                if (in_array($meta_key, array('_edit_lock', '_edit_last', '_wp_old_slug'))) {
+                    continue;
+                }
+                
+                foreach ($meta_values as $meta_value) {
+                    add_post_meta($new_post_id, $meta_key, maybe_unserialize($meta_value));
+                }
+            }
+        }
+        
+        // Copy taxonomies/terms
+        $taxonomies = get_object_taxonomies($post->post_type);
+        foreach ($taxonomies as $taxonomy) {
+            $terms = wp_get_object_terms($post_id, $taxonomy, array('fields' => 'slugs'));
+            if (!empty($terms) && !is_wp_error($terms)) {
+                wp_set_object_terms($new_post_id, $terms, $taxonomy);
+            }
+        }
+        
+        // Handle media if enabled in settings
+        $handle_media = isset($settings['handle_media']) ? $settings['handle_media'] : true;
+        if ($handle_media) {
+            // Copy featured image if it exists
+            $thumbnail_id = get_post_thumbnail_id($post_id);
+            if ($thumbnail_id) {
+                set_post_thumbnail($new_post_id, $thumbnail_id);
+            }
+            
+            // Let's also handle images in the content
+            if (class_exists('SiteSync_Cloner_Media_Handler')) {
+                // Find attachment IDs in the post content
+                preg_match_all('/wp-image-(\d+)/i', $post->post_content, $matches);
+                
+                // If attachments are found, make sure they're associated with the new post
+                if (isset($matches[1]) && !empty($matches[1])) {
+                    // Set their new post parent
+                    foreach ($matches[1] as $attachment_id) {
+                        // This doesn't copy the attachment, just ensures it's associated in the media library
+                        wp_update_post(array(
+                            'ID' => $attachment_id,
+                            'post_parent' => $new_post_id,
+                        ));
+                    }
+                }
+            }
+        }
+        
+        // Redirect to the edit screen for the new post
+        wp_redirect(admin_url('post.php?action=edit&post=' . $new_post_id));
+        exit;
     }
 
     /**

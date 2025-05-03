@@ -281,12 +281,156 @@ jQuery(document).ready(function($) {
         }
     }
     
-    // Initialize with the first post type (posts)
-    loadPosts('post', '');
+    // Initialize the default tab if present
+    if ($postTypeSelect.length > 0 && $contentGrid.length > 0) {
+        loadPosts($postTypeSelect.val(), '', 1);
+    }
     
     /**
-     * Generate export code
+     * Handle quick export links in post list table
      */
+    $(document).on('click', '.sitesync-quick-export', function(e) {
+        e.preventDefault();
+        
+        const url = $(this).attr('href');
+        const postId = $(this).data('id');
+        
+        // Create modal dialog
+        const $modal = $('<div class="sitesync-modal">' +
+            '<div class="sitesync-modal-content">' +
+                '<div class="sitesync-modal-header">' +
+                    '<h3>' + siteSyncClonerAdmin.i18n.quickExportTitle + '</h3>' +
+                    '<span class="sitesync-modal-close">&times;</span>' +
+                '</div>' +
+                '<div class="sitesync-modal-body">' +
+                    '<p class="sitesync-modal-message">' + siteSyncClonerAdmin.i18n.exportGenerating + '</p>' +
+                    '<div class="sitesync-modal-result" style="display:none;">' +
+                        '<textarea readonly rows="8" class="sitesync-modal-code"></textarea>' +
+                        '<div class="sitesync-modal-actions">' +
+                            '<button class="button sitesync-modal-copy">' + siteSyncClonerAdmin.i18n.copyExport + '</button>' +
+                            '<button class="button sitesync-modal-download">' + siteSyncClonerAdmin.i18n.saveExport + '</button>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+        '</div>');
+        
+        // Add modal to body
+        $('body').append($modal);
+        $modal.fadeIn(200);
+        
+        // Close modal on click
+        $modal.find('.sitesync-modal-close').on('click', function() {
+            $modal.fadeOut(200, function() {
+                $modal.remove();
+            });
+        });
+        
+        // Make AJAX request to generate export
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    const data = response.data;
+                    
+                    // Show success message
+                    $modal.find('.sitesync-modal-message').text(data.message);
+                    
+                    // Fill the textarea with export code
+                    $modal.find('.sitesync-modal-code').val(JSON.stringify(data.data, null, 2));
+                    
+                    // Show result container
+                    $modal.find('.sitesync-modal-result').show();
+                    
+                    // Handle copy button
+                    $modal.find('.sitesync-modal-copy').on('click', function() {
+                        const $code = $modal.find('.sitesync-modal-code');
+                        $code.select();
+                        document.execCommand('copy');
+                        $(this).text(siteSyncClonerAdmin.i18n.copied);
+                        setTimeout(() => {
+                            $(this).text(siteSyncClonerAdmin.i18n.copyExport);
+                        }, 2000);
+                    });
+                    
+                    // Handle download button
+                    $modal.find('.sitesync-modal-download').on('click', function() {
+                        const filename = 'sitesync-export-' + data.title.toLowerCase().replace(/[^a-z0-9]/g, '-') + '.json';
+                        const blob = new Blob([JSON.stringify(data.data, null, 2)], { type: 'application/json' });
+                        const link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = filename;
+                        link.click();
+                    });
+                } else {
+                    // Show error message
+                    $modal.find('.sitesync-modal-message').text(response.data.message).addClass('error');
+                }
+            },
+            error: function() {
+                // Show error message
+                $modal.find('.sitesync-modal-message').text(siteSyncClonerAdmin.i18n.exportError).addClass('error');
+            }
+        });
+    });
+    
+    /**
+     * Handle quick export button in post edit meta box
+     */
+    $(document).on('click', '.sitesync-quick-export-button', function() {
+        const $button = $(this);
+        const $result = $button.siblings('.sitesync-export-result');
+        const url = $button.data('url');
+        
+        // Disable button and show loading
+        $button.prop('disabled', true).text(siteSyncClonerAdmin.i18n.exportGenerating);
+        
+        // Make AJAX request
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    const data = response.data;
+                    
+                    // Create export result content
+                    $result.html(
+                        '<p class="success">' + data.message + '</p>' +
+                        '<textarea readonly rows="4" class="sitesync-export-code">' + JSON.stringify(data.data) + '</textarea>' +
+                        '<button type="button" class="button button-small sitesync-copy-export-code">' + siteSyncClonerAdmin.i18n.copyExport + '</button>'
+                    ).show();
+                    
+                    // Handle copy button click
+                    $result.find('.sitesync-copy-export-code').on('click', function() {
+                        const $code = $result.find('.sitesync-export-code');
+                        $code.select();
+                        document.execCommand('copy');
+                        $(this).text(siteSyncClonerAdmin.i18n.copied);
+                        setTimeout(() => {
+                            $(this).text(siteSyncClonerAdmin.i18n.copyExport);
+                        }, 2000);
+                    });
+                } else {
+                    // Show error message
+                    $result.html('<p class="error">' + response.data.message + '</p>').show();
+                }
+                
+                // Re-enable button
+                $button.prop('disabled', false).text(siteSyncClonerAdmin.i18n.exportContent);
+            },
+            error: function() {
+                // Show error message
+                $result.html('<p class="error">' + siteSyncClonerAdmin.i18n.exportError + '</p>').show();
+                
+                // Re-enable button
+                $button.prop('disabled', false).text(siteSyncClonerAdmin.i18n.exportContent);
+            }
+        });
+    });
+
     $generateExportBtn.on('click', function(e) {
         e.preventDefault();
         
