@@ -552,12 +552,32 @@ jQuery(document).ready(function($) {
                     }
                 }
                 
-                // Use edit URL instead of view URL if available
-                if (responseData.edit_url) {
-                    $viewImportedBtn.attr('href', responseData.edit_url);
-                    $viewImportedBtn.text(responseData.is_batch ? 'View Imported Content' : 'Edit Imported Content');
+                // Set button URL and text based on import type
+                if (responseData.is_batch) {
+                    // For batch imports, use the view_url if available or fallback to admin posts/pages list
+                    if (responseData.view_url) {
+                        $viewImportedBtn.attr('href', responseData.view_url);
+                    } else {
+                        // Default to the post type listing in admin
+                        const firstSuccessItem = responseData.success && responseData.success.length > 0 ? responseData.success[0] : null;
+                        if (firstSuccessItem && firstSuccessItem.post_type === 'page') {
+                            $viewImportedBtn.attr('href', siteSyncClonerAdmin.adminUrl + 'edit.php?post_type=page');
+                        } else {
+                            $viewImportedBtn.attr('href', siteSyncClonerAdmin.adminUrl + 'edit.php');
+                        }
+                    }
+                    $viewImportedBtn.text('View Imported Content');
                 } else {
-                    $viewImportedBtn.hide();
+                    // For single imports, use post_url (frontend) if available, otherwise edit_url
+                    if (responseData.post_url) {
+                        $viewImportedBtn.attr('href', responseData.post_url);
+                        $viewImportedBtn.text('View Imported Content');
+                    } else if (responseData.edit_url) {
+                        $viewImportedBtn.attr('href', responseData.edit_url);
+                        $viewImportedBtn.text('Edit Imported Content');
+                    } else {
+                        $viewImportedBtn.hide();
+                    }
                 }
                 
                 // Scroll to result

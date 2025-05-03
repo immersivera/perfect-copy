@@ -90,6 +90,7 @@ class SiteSync_Cloner_Admin {
             'siteSyncClonerAdmin',
             array(
                 'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
+                'adminUrl'  => admin_url(),
                 'nonce'     => wp_create_nonce( 'sitesync-cloner-nonce' ),
                 'i18n'      => array(
                     'exportSuccess'     => __( 'Export generated successfully!', 'sitesync-cloner' ),
@@ -534,15 +535,38 @@ class SiteSync_Cloner_Admin {
             // Get first successful import for viewing link
             $first_import = ! empty( $results['success'] ) ? reset( $results['success'] ) : null;
             
+            // Determine the post type for admin URL
+            $post_type = '';
+            if ($first_import && isset($first_import['post_title'])) {
+                // Try to get post type from the post ID
+                $post = get_post($first_import['post_id']);
+                if ($post) {
+                    $post_type = $post->post_type;
+                }
+            } else {
+                // No successful imports, try to determine from first item in batch
+                if (!empty($import_data['items']) && is_array($import_data['items'])) {
+                    $first_item = reset($import_data['items']);
+                    if (isset($first_item['post_type'])) {
+                        $post_type = $first_item['post_type'];
+                    }
+                }
+            }
+            
+            // Generate appropriate view URL for admin page based on post type
+            $view_url = admin_url('edit.php' . ($post_type === 'page' ? '?post_type=page' : ''));
+            
             wp_send_json_success( array(
-                'is_batch'    => true,
+                'is_batch'     => true,
                 'success_count' => $success_count,
                 'error_count'  => $error_count,
-                'summary'     => $summary,
-                'success'     => $results['success'],
-                'errors'      => $results['errors'],
-                'post_id'     => $first_import ? $first_import['post_id'] : null,
-                'edit_url'    => $first_import ? $first_import['edit_url'] : '',
+                'summary'      => $summary,
+                'success'      => $results['success'],
+                'errors'       => $results['errors'],
+                'post_id'      => $first_import ? $first_import['post_id'] : null,
+                'edit_url'     => $first_import ? $first_import['edit_url'] : '',
+                'view_url'     => $view_url,
+                'post_type'    => $post_type,
             ) );
         } else {
             // Handle single item import
