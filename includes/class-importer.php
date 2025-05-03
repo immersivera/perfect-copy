@@ -352,6 +352,10 @@ class SiteSync_Cloner_Importer {
      * @return int|WP_Error Post ID on success, WP_Error on failure.
      */
     private function create_post( $import_data ) {
+        // Get plugin settings
+        $settings = get_option('sitesync_cloner_settings', array());
+        $preserve_dates = isset($settings['preserve_dates']) ? (bool)$settings['preserve_dates'] : true;
+        
         $post_data = array(
             'post_title'    => $import_data['post_title'],
             'post_content'  => $import_data['post_content'],
@@ -361,6 +365,12 @@ class SiteSync_Cloner_Importer {
             'comment_status' => isset( $import_data['comment_status'] ) ? $import_data['comment_status'] : 'open',
             'ping_status'   => isset( $import_data['ping_status'] ) ? $import_data['ping_status'] : 'open',
         );
+        
+        // If preserve dates setting is enabled and original date exists, use it
+        if ($preserve_dates && isset($import_data['post_date'])) {
+            $post_data['post_date'] = $import_data['post_date'];
+            $post_data['post_date_gmt'] = isset($import_data['post_date_gmt']) ? $import_data['post_date_gmt'] : $import_data['post_date'];
+        }
 
         $post_id = wp_insert_post( $post_data, true );
 

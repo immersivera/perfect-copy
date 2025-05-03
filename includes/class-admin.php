@@ -113,14 +113,22 @@ class SiteSync_Cloner_Admin {
     public function sanitize_settings( $input ) {
         $sanitized = array();
         
-        // Handle media checkbox
+        // Handle media checkbox - checkboxes are only submitted when checked
         $sanitized['handle_media'] = isset( $input['handle_media'] ) ? 1 : 0;
         
-        // Preserve dates checkbox
+        // Preserve dates checkbox - checkboxes are only submitted when checked
         $sanitized['preserve_dates'] = isset( $input['preserve_dates'] ) ? 1 : 0;
         
         // Post types array (ensure at least post and page are included)
         $sanitized['post_types'] = array('post', 'page');
+        
+        // Add a notice
+        add_settings_error(
+            'sitesync_cloner_settings',
+            'sitesync_settings_updated',
+            __('Settings saved successfully.', 'sitesync-cloner'),
+            'updated'
+        );
         
         return $sanitized;
     }
@@ -342,12 +350,34 @@ class SiteSync_Cloner_Admin {
      * Render the settings page.
      */
     public function render_settings_page() {
+        // Get current settings
+        $settings = get_option('sitesync_cloner_settings', array());
+        
+        // Set defaults if settings don't exist
+        if (empty($settings)) {
+            $settings = array(
+                'handle_media' => 1,
+                'preserve_dates' => 1,
+                'post_types' => array('post', 'page'),
+            );
+        }
+        
+        // Check if specific settings exist
+        $handle_media = isset($settings['handle_media']) ? (bool)$settings['handle_media'] : true;
+        $preserve_dates = isset($settings['preserve_dates']) ? (bool)$settings['preserve_dates'] : true;
         ?>
         <div class="wrap sitesync-cloner-wrap">
             <h1><?php esc_html_e( 'SiteSync Cloner - Settings', 'sitesync-cloner' ); ?></h1>
             
             <div class="sitesync-cloner-card">
                 <h2><?php esc_html_e( 'Plugin Settings', 'sitesync-cloner' ); ?></h2>
+                
+                <?php 
+                // Show settings updated message if settings were updated
+                if (isset($_GET['settings-updated']) && $_GET['settings-updated']) {
+                    echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Settings saved successfully!', 'sitesync-cloner') . '</p></div>';
+                }
+                ?>
                 
                 <form method="post" action="options.php" id="sitesync-cloner-settings-form">
                     <?php
@@ -380,7 +410,7 @@ class SiteSync_Cloner_Admin {
                             
                             <fieldset>
                                 <label>
-                                    <input type="checkbox" name="sitesync_cloner_settings[handle_media]" value="1" checked>
+                                    <input type="checkbox" name="sitesync_cloner_settings[handle_media]" value="1" <?php checked($handle_media); ?>>
                                     <?php esc_html_e( 'Download and import media files', 'sitesync-cloner' ); ?>
                                 </label>
                                 <p class="description"><?php esc_html_e( 'When enabled, SiteSync Cloner will attempt to download media files from the source site and add them to your media library.', 'sitesync-cloner' ); ?></p>
@@ -392,7 +422,7 @@ class SiteSync_Cloner_Admin {
                             
                             <fieldset>
                                 <label>
-                                    <input type="checkbox" name="sitesync_cloner_settings[preserve_dates]" value="1" checked>
+                                    <input type="checkbox" name="sitesync_cloner_settings[preserve_dates]" value="1" <?php checked($preserve_dates); ?>>
                                     <?php esc_html_e( 'Preserve original post dates', 'sitesync-cloner' ); ?>
                                 </label>
                                 <p class="description"><?php esc_html_e( 'When enabled, imported content will maintain its original creation date.', 'sitesync-cloner' ); ?></p>

@@ -259,6 +259,11 @@ class SiteSync_Cloner_Media_Handler {
      * @return array|WP_Error Processed media data or error.
      */
     public function process_media_files( $import_data ) {
+        // Get settings for media handling
+        $settings = get_option('sitesync_cloner_settings', array());
+        $handle_media = isset($settings['handle_media']) ? (bool)$settings['handle_media'] : true;
+        
+        // Extract media references regardless of setting (for reference tracking)
         $media_references = $this->extract_media_references( $import_data );
         $processed_media = array();
         
@@ -266,6 +271,19 @@ class SiteSync_Cloner_Media_Handler {
             return $processed_media;
         }
         
+        // If media handling is disabled, return empty array but with URLs
+        // This allows content to be imported without downloading media
+        if (!$handle_media) {
+            foreach ( $media_references as $url => $ref_data ) {
+                $processed_media[$url] = array(
+                    'skipped' => true,
+                    'reason' => 'Media handling disabled in settings',
+                );
+            }
+            return $processed_media;
+        }
+        
+        // Process media if handling is enabled
         foreach ( $media_references as $url => $ref_data ) {
             $result = $this->download_and_import_media( $url );
             
