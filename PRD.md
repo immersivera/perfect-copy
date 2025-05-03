@@ -1,8 +1,8 @@
-# Product Requirements Document (PRD): WP Content Porter Plugin
+# Product Requirements Document (PRD): Wordpress Plugin - SiteSync Cloner
 
 ## Overview
 
-WP Content Porter is a WordPress plugin designed to simplify the process of duplicating and transferring content between WordPress sites. It offers a streamlined, user-friendly approach to content migration through a JSON-based export/import system that preserves all essential content components.
+SiteSync Cloner is a WordPress plugin designed to simplify the process of duplicating and transferring content between WordPress sites. It offers a streamlined, user-friendly approach to content migration through a JSON-based export/import system that preserves all essential content components.
 
 ## Target Audience
 
@@ -16,7 +16,7 @@ Transferring WordPress content between sites is currently a complex, multi-step 
 
 ## Solution
 
-WP Content Porter provides a straightforward copy-paste mechanism to transfer posts and pages between WordPress sites while preserving content structure, media, custom fields, and taxonomies.
+SiteSync Cloner provides a straightforward copy-paste mechanism to transfer posts and pages between WordPress sites while preserving content structure, media, custom fields, and taxonomies.
 
 ## MVP Feature Requirements
 
@@ -93,8 +93,8 @@ WP Content Porter provides a straightforward copy-paste mechanism to transfer po
 
 ### File Structure
 ```
-wp-content-porter/
-├── wp-content-porter.php       # Main plugin file
+sitesync-cloner/
+├── sitesync-cloner.php       # Main plugin file
 ├── includes/
 │   ├── class-admin.php         # Admin interface
 │   ├── class-exporter.php      # Export functionality
@@ -116,7 +116,7 @@ wp-content-porter/
 ## User Flows
 
 ### Export Flow
-1. User navigates to Tools > WP Content Porter > Export
+1. User navigates to Tools > SiteSync Cloner > Export
 2. User selects post/page from dropdown
 3. User clicks "Generate Export Code"
 4. System displays JSON in text area
