@@ -12,7 +12,7 @@ const DIST_DIR = path.resolve(SOURCE_DIR, 'dist');
 const INCLUDES = [
   'includes',
   'languages',
-  'assets/images',
+  'assets',  // Include entire assets folder for structure
   'index.php',
   'sitesync-cloner.php',
   'README.md'
@@ -21,8 +21,9 @@ const INCLUDES = [
 // Create index.php files for directories
 const createIndexPhp = () => {
   const directories = [
-    'css',
-    'js', 
+    'assets/css',
+    'assets/js',
+    'assets',
     ''  // root dist directory
   ];
   
@@ -91,7 +92,26 @@ const copyFiles = () => {
   // Create any missing index.php files
   createIndexPhp();
   
+  // Clean up duplicate CSS and JS directories
+  cleanupDuplicateFiles();
+  
   console.log('File copying complete!');
+};
+
+// Clean up duplicate CSS and JS directories
+const cleanupDuplicateFiles = () => {
+  console.log('Cleaning up duplicate files...');
+  
+  // Remove the dist/css and dist/js directories since we now use assets/css and assets/js
+  if (fs.existsSync(path.join(DIST_DIR, 'css'))) {
+    fs.removeSync(path.join(DIST_DIR, 'css'));
+    console.log('Removed: dist/css directory');
+  }
+  
+  if (fs.existsSync(path.join(DIST_DIR, 'js'))) {
+    fs.removeSync(path.join(DIST_DIR, 'js'));
+    console.log('Removed: dist/js directory');
+  }
 };
 
 // Execute
