@@ -95,6 +95,10 @@ class SiteSync_Cloner_Admin {
                     'exportError'       => __( 'Error generating export.', 'sitesync-cloner' ),
                     'copySuccess'       => __( 'Export code copied to clipboard!', 'sitesync-cloner' ),
                     'copyError'         => __( 'Error copying to clipboard.', 'sitesync-cloner' ),
+                    'saveSuccess'       => __( 'Export saved to file!', 'sitesync-cloner' ),
+                    'saveError'         => __( 'Error saving to file.', 'sitesync-cloner' ),
+                    'fileReadSuccess'   => __( 'File read successfully!', 'sitesync-cloner' ),
+                    'fileReadError'     => __( 'Error reading file. Please make sure it is a valid JSON file.', 'sitesync-cloner' ),
                     'validationSuccess' => __( 'JSON validated successfully!', 'sitesync-cloner' ),
                     'validationError'   => __( 'Invalid JSON format or missing required fields.', 'sitesync-cloner' ),
                     'importSuccess'     => __( 'Content imported successfully!', 'sitesync-cloner' ),
@@ -162,6 +166,7 @@ class SiteSync_Cloner_Admin {
                     
                     <div class="sitesync-cloner-form-row">
                         <button id="sitesync-cloner-copy-export" class="button button-secondary"><?php esc_html_e( 'Copy to Clipboard', 'sitesync-cloner' ); ?></button>
+                        <button id="sitesync-cloner-save-export" class="button button-secondary"><?php esc_html_e( 'Save to File', 'sitesync-cloner' ); ?></button>
                     </div>
                 </div>
                 
@@ -189,6 +194,11 @@ class SiteSync_Cloner_Admin {
                     <div class="sitesync-cloner-form-row">
                         <label for="sitesync-cloner-import-code"><?php esc_html_e( 'Paste Export Code:', 'sitesync-cloner' ); ?></label>
                         <textarea id="sitesync-cloner-import-code" name="import_code" rows="10" required></textarea>
+                    </div>
+                    
+                    <div class="sitesync-cloner-form-row">
+                        <label for="sitesync-cloner-import-file"><?php esc_html_e( 'Or Import from File:', 'sitesync-cloner' ); ?></label>
+                        <input type="file" id="sitesync-cloner-import-file" accept=".json,application/json" class="sitesync-cloner-file-input" />
                     </div>
                     
                     <div class="sitesync-cloner-form-row">

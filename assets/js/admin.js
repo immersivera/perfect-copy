@@ -7,11 +7,13 @@ jQuery(document).ready(function($) {
     const $exportResult = $('#sitesync-cloner-export-result');
     const $exportCode = $('#sitesync-cloner-export-code');
     const $copyExportBtn = $('#sitesync-cloner-copy-export');
+    const $saveExportBtn = $('#sitesync-cloner-save-export');
     const $exportNotice = $('#sitesync-cloner-export-notice');
     
     // Import functionality
     const $validateImportBtn = $('#sitesync-cloner-validate-import');
     const $importCode = $('#sitesync-cloner-import-code');
+    const $importFile = $('#sitesync-cloner-import-file');
     const $importPreview = $('#sitesync-cloner-import-preview');
     const $previewTitle = $('#sitesync-cloner-preview-title');
     const $previewType = $('#sitesync-cloner-preview-type');
@@ -77,6 +79,9 @@ jQuery(document).ready(function($) {
                     // Show export code
                     $exportCode.val(response.data.json);
                     $exportResult.show();
+                    // Enable save and copy buttons
+                    $copyExportBtn.prop('disabled', false);
+                    $saveExportBtn.prop('disabled', false);
                     showNotice($exportNotice, siteSyncClonerAdmin.i18n.exportSuccess, 'success');
                     
                     // Scroll to export code
@@ -113,6 +118,83 @@ jQuery(document).ready(function($) {
     });
     
     /**
+     * Save export code to file
+     */
+    $saveExportBtn.on('click', function(e) {
+        e.preventDefault();
+        
+        const exportCode = $exportCode.val();
+        
+        if (!exportCode) {
+            showNotice($exportNotice, siteSyncClonerAdmin.i18n.saveError, 'error');
+            return;
+        }
+        
+        // Get post title for filename
+        const postTitle = $('#sitesync-cloner-post-select option:selected').text() || 'sitesync-export';
+        // Create sanitized filename
+        const filename = postTitle.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + 
+                        new Date().toISOString().slice(0, 10) + '.json';
+        
+        // Create blob and download link
+        const blob = new Blob([exportCode], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        
+        // Cleanup
+        setTimeout(function() {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }, 0);
+        
+        showNotice($exportNotice, siteSyncClonerAdmin.i18n.saveSuccess, 'success');
+    });
+    
+    /**
+     * Handle file import
+     */
+    $importFile.on('change', function(e) {
+        const file = e.target.files[0];
+        
+        if (!file) {
+            return;
+        }
+        
+        // Check if file is JSON
+        if (file.type !== 'application/json' && !file.name.endsWith('.json')) {
+            showNotice($importNotice, siteSyncClonerAdmin.i18n.fileReadError, 'error');
+            return;
+        }
+        
+        const reader = new FileReader();
+        
+        reader.onload = function(event) {
+            try {
+                // Try to parse JSON to validate format
+                JSON.parse(event.target.result);
+                
+                // Set the textarea value
+                $importCode.val(event.target.result);
+                
+                showNotice($importNotice, siteSyncClonerAdmin.i18n.fileReadSuccess, 'success');
+            } catch (err) {
+                showNotice($importNotice, siteSyncClonerAdmin.i18n.fileReadError, 'error');
+            }
+        };
+        
+        reader.onerror = function() {
+            showNotice($importNotice, siteSyncClonerAdmin.i18n.fileReadError, 'error');
+        };
+        
+        reader.readAsText(file);
+    });
+    
+    /**
      * Validate import code
      */
     $validateImportBtn.on('click', function(e) {
@@ -121,7 +203,7 @@ jQuery(document).ready(function($) {
         const importCode = $importCode.val();
         
         if (!importCode) {
-            showNotice($importNotice, 'Please paste an export code.', 'error');
+            showNotice($importNotice, 'Please enter import code or select a file.', 'error');
             return;
         }
         

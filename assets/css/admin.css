@@ -24,6 +24,10 @@
     margin-bottom: 15px;
 }
 
+.sitesync-cloner-form-row button {
+    margin-right: 10px;
+}
+
 .sitesync-cloner-form-row label {
     display: block;
     margin-bottom: 5px;
@@ -31,11 +35,17 @@
 }
 
 .sitesync-cloner-form-row select,
-.sitesync-cloner-form-row textarea {
+.sitesync-cloner-form-row textarea,
+.sitesync-cloner-form-row input[type="file"] {
     width: 100%;
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
+}
+
+.sitesync-cloner-file-input {
+    padding: 10px 0;
+    margin-bottom: 5px;
 }
 
 .clone-n-export-form-row textarea {
@@ -109,6 +119,7 @@
 @media screen and (max-width: 782px) {
     .sitesync-cloner-form-row button {
         width: 100%;
+        margin-right: 0;
         margin-bottom: 10px;
     }
 }
