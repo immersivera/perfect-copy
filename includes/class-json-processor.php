@@ -1,8 +1,8 @@
 <?php
 /**
- * JSON Processor class for WP Content Porter.
+ * JSON Processor class for Clone & Export.
  *
- * @package WP_Content_Porter
+ * @package Clone_N_Export
  */
 
 // Exit if accessed directly.
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * JSON Processor class.
  */
-class WP_Content_Porter_JSON_Processor {
+class Clone_N_Export_JSON_Processor {
 
     /**
      * Encode data to JSON.
@@ -23,7 +23,7 @@ class WP_Content_Porter_JSON_Processor {
      */
     public function encode( $data ) {
         if ( ! is_array( $data ) ) {
-            return new WP_Error( 'invalid_data', __( 'Data to encode must be an array.', 'wp-content-porter' ) );
+            return new WP_Error( 'invalid_data', __( 'Data to encode must be an array.', 'clone-n-export' ) );
         }
 
         // Add export timestamp.
@@ -34,7 +34,7 @@ class WP_Content_Porter_JSON_Processor {
         $json = wp_json_encode( $data, JSON_PRETTY_PRINT );
 
         if ( false === $json ) {
-            return new WP_Error( 'json_encode_failed', __( 'Failed to encode data to JSON.', 'wp-content-porter' ) );
+            return new WP_Error( 'json_encode_failed', __( 'Failed to encode data to JSON.', 'clone-n-export' ) );
         }
 
         return $json;
@@ -48,14 +48,14 @@ class WP_Content_Porter_JSON_Processor {
      */
     public function decode( $json ) {
         if ( ! is_string( $json ) ) {
-            return new WP_Error( 'invalid_json', __( 'JSON to decode must be a string.', 'wp-content-porter' ) );
+            return new WP_Error( 'invalid_json', __( 'JSON to decode must be a string.', 'clone-n-export' ) );
         }
 
         // Decode JSON.
         $data = json_decode( $json, true );
 
         if ( null === $data ) {
-            return new WP_Error( 'json_decode_failed', __( 'Failed to decode JSON.', 'wp-content-porter' ) );
+            return new WP_Error( 'json_decode_failed', __( 'Failed to decode JSON.', 'clone-n-export' ) );
         }
 
         // Validate required fields.
@@ -66,7 +66,7 @@ class WP_Content_Porter_JSON_Processor {
                     'missing_required_field',
                     sprintf(
                         /* translators: %s: Field name */
-                        __( 'Missing required field: %s', 'wp-content-porter' ),
+                        __( 'Missing required field: %s', 'clone-n-export' ),
                         $field
                     )
                 );

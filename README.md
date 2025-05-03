@@ -1,6 +1,6 @@
-# WP Content Porter
+# Clone & Export
 
-WP Content Porter is a WordPress plugin designed to simplify the process of duplicating and transferring content between WordPress sites. It offers a streamlined, user-friendly approach to content migration through a JSON-based export/import system that preserves all essential content components.
+Clone & Export is a WordPress plugin designed to simplify the process of duplicating and transferring content between WordPress sites. It offers a streamlined, user-friendly approach to content migration through a JSON-based export/import system that preserves all essential content components.
 
 ## Features
 
@@ -34,7 +34,7 @@ Alternatively, you can extract the plugin directly to your `/wp-content/plugins/
 
 ### Exporting Content
 
-1. Navigate to Tools > WP Content Porter in your WordPress admin panel
+1. Navigate to Tools > Clone & Export in your WordPress admin panel
 2. Select the post or page you want to export from the dropdown
 3. Click "Generate Export Code"
 4. Once the export is generated, click "Copy to Clipboard"
@@ -42,7 +42,7 @@ Alternatively, you can extract the plugin directly to your `/wp-content/plugins/
 
 ### Importing Content
 
-1. Navigate to Tools > WP Content Porter Import in your WordPress admin panel
+1. Navigate to Tools > Clone & Export Import in your WordPress admin panel
 2. Paste the JSON code you exported from another site
 3. Click "Validate" to verify the JSON format
 4. Review the import preview to ensure it's the correct content
@@ -87,4 +87,4 @@ For support, feature requests, or bug reports, please visit the plugin repositor
 
 ## License
 
-WP Content Porter is licensed under GPL v2 or later, same as WordPress itself.
+Clone & Export is licensed under GPL v2 or later, same as WordPress itself.

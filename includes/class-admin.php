@@ -1,8 +1,8 @@
 <?php
 /**
- * Admin class for WP Content Porter.
+ * Admin class for Clone & Export.
  *
- * @package WP_Content_Porter
+ * @package Clone_N_Export
  */
 
 // Exit if accessed directly.
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Admin class.
  */
-class WP_Content_Porter_Admin {
+class Clone_N_Export_Admin {
 
     /**
      * Initialize the admin class.
@@ -26,9 +26,9 @@ class WP_Content_Porter_Admin {
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
         
         // Register AJAX handlers.
-        add_action( 'wp_ajax_wp_content_porter_export', array( $this, 'handle_export_ajax' ) );
-        add_action( 'wp_ajax_wp_content_porter_validate_import', array( $this, 'handle_validate_import_ajax' ) );
-        add_action( 'wp_ajax_wp_content_porter_import', array( $this, 'handle_import_ajax' ) );
+        add_action( 'wp_ajax_clone_n_export_export', array( $this, 'handle_export_ajax' ) );
+        add_action( 'wp_ajax_clone_n_export_validate_import', array( $this, 'handle_validate_import_ajax' ) );
+        add_action( 'wp_ajax_clone_n_export_import', array( $this, 'handle_import_ajax' ) );
     }
 
     /**
@@ -38,20 +38,20 @@ class WP_Content_Porter_Admin {
         // Add export page.
         add_submenu_page(
             'tools.php',
-            __( 'WP Content Porter - Export', 'wp-content-porter' ),
-            __( 'WP Content Porter', 'wp-content-porter' ),
+            __( 'Clone & Export - Export', 'clone-n-export' ),
+            __( 'Clone & Export', 'clone-n-export' ),
             'edit_posts',
-            'wp-content-porter-export',
+            'clone-n-export-export',
             array( $this, 'render_export_page' )
         );
 
         // Add import page.
         add_submenu_page(
             'tools.php',
-            __( 'WP Content Porter - Import', 'wp-content-porter' ),
-            __( 'WP Content Porter Import', 'wp-content-porter' ),
+            __( 'Clone & Export - Import', 'clone-n-export' ),
+            __( 'Clone & Export Import', 'clone-n-export' ),
             'edit_posts',
-            'wp-content-porter-import',
+            'clone-n-export-import',
             array( $this, 'render_import_page' )
         );
     }
@@ -62,45 +62,45 @@ class WP_Content_Porter_Admin {
      * @param string $hook Current admin page hook.
      */
     public function enqueue_admin_scripts( $hook ) {
-        if ( 'tools_page_wp-content-porter-export' !== $hook && 'tools_page_wp-content-porter-import' !== $hook ) {
+        if ( 'tools_page_clone-n-export-export' !== $hook && 'tools_page_clone-n-export-import' !== $hook ) {
             return;
         }
 
         // Enqueue CSS.
         wp_enqueue_style(
-            'wp-content-porter-admin',
-            WP_CONTENT_PORTER_PLUGIN_URL . 'assets/css/admin.css',
+            'clone-n-export-admin',
+            CLONE_N_EXPORT_PLUGIN_URL . 'assets/css/admin.css',
             array(),
-            WP_CONTENT_PORTER_VERSION
+            CLONE_N_EXPORT_VERSION
         );
 
         // Enqueue JS.
         wp_enqueue_script(
-            'wp-content-porter-admin',
-            WP_CONTENT_PORTER_PLUGIN_URL . 'assets/js/admin.js',
+            'clone-n-export-admin',
+            CLONE_N_EXPORT_PLUGIN_URL . 'assets/js/admin.js',
             array( 'jquery' ),
-            WP_CONTENT_PORTER_VERSION,
+            CLONE_N_EXPORT_VERSION,
             true
         );
 
         // Localize script.
         wp_localize_script(
-            'wp-content-porter-admin',
-            'wpContentPorterAdmin',
+            'clone-n-export-admin',
+            'cloneNExportAdmin',
             array(
                 'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
-                'nonce'     => wp_create_nonce( 'wp-content-porter-nonce' ),
+                'nonce'     => wp_create_nonce( 'clone-n-export-nonce' ),
                 'i18n'      => array(
-                    'exportSuccess'     => __( 'Export generated successfully!', 'wp-content-porter' ),
-                    'exportError'       => __( 'Error generating export.', 'wp-content-porter' ),
-                    'copySuccess'       => __( 'Export code copied to clipboard!', 'wp-content-porter' ),
-                    'copyError'         => __( 'Error copying to clipboard.', 'wp-content-porter' ),
-                    'validationSuccess' => __( 'JSON validated successfully!', 'wp-content-porter' ),
-                    'validationError'   => __( 'Invalid JSON format or missing required fields.', 'wp-content-porter' ),
-                    'importSuccess'     => __( 'Content imported successfully!', 'wp-content-porter' ),
-                    'importError'       => __( 'Error importing content.', 'wp-content-porter' ),
-                    'downloadingMedia'  => __( 'Downloading media files...', 'wp-content-porter' ),
-                    'processingContent' => __( 'Processing content...', 'wp-content-porter' ),
+                    'exportSuccess'     => __( 'Export generated successfully!', 'clone-n-export' ),
+                    'exportError'       => __( 'Error generating export.', 'clone-n-export' ),
+                    'copySuccess'       => __( 'Export code copied to clipboard!', 'clone-n-export' ),
+                    'copyError'         => __( 'Error copying to clipboard.', 'clone-n-export' ),
+                    'validationSuccess' => __( 'JSON validated successfully!', 'clone-n-export' ),
+                    'validationError'   => __( 'Invalid JSON format or missing required fields.', 'clone-n-export' ),
+                    'importSuccess'     => __( 'Content imported successfully!', 'clone-n-export' ),
+                    'importError'       => __( 'Error importing content.', 'clone-n-export' ),
+                    'downloadingMedia'  => __( 'Downloading media files...', 'clone-n-export' ),
+                    'processingContent' => __( 'Processing content...', 'clone-n-export' ),
                 ),
             )
         );
@@ -111,20 +111,20 @@ class WP_Content_Porter_Admin {
      */
     public function render_export_page() {
         ?>
-        <div class="wrap wp-content-porter-wrap">
-            <h1><?php esc_html_e( 'WP Content Porter - Export', 'wp-content-porter' ); ?></h1>
+        <div class="wrap clone-n-export-wrap">
+            <h1><?php esc_html_e( 'Clone & Export - Export', 'clone-n-export' ); ?></h1>
             
-            <div class="wp-content-porter-card">
-                <h2><?php esc_html_e( 'Export Content', 'wp-content-porter' ); ?></h2>
-                <p><?php esc_html_e( 'Select a post or page to export and generate a JSON code that can be imported into another WordPress site.', 'wp-content-porter' ); ?></p>
+            <div class="clone-n-export-card">
+                <h2><?php esc_html_e( 'Export Content', 'clone-n-export' ); ?></h2>
+                <p><?php esc_html_e( 'Select a post or page to export and generate a JSON code that can be imported into another WordPress site.', 'clone-n-export' ); ?></p>
                 
                 <div class="wp-content-porter-form">
-                    <?php wp_nonce_field( 'wp-content-porter-export', 'wp_content_porter_export_nonce' ); ?>
+                    <?php wp_nonce_field( 'clone-n-export-export', 'clone_n_export_export_nonce' ); ?>
                     
-                    <div class="wp-content-porter-form-row">
-                        <label for="wp-content-porter-post-select"><?php esc_html_e( 'Select Post/Page:', 'wp-content-porter' ); ?></label>
-                        <select id="wp-content-porter-post-select" name="post_id" required>
-                            <option value=""><?php esc_html_e( 'Select a post or page', 'wp-content-porter' ); ?></option>
+                    <div class="clone-n-export-form-row">
+                        <label for="clone-n-export-post-select"><?php esc_html_e( 'Select Post/Page:', 'clone-n-export' ); ?></label>
+                        <select id="clone-n-export-post-select" name="post_id" required>
+                            <option value=""><?php esc_html_e( 'Select a post or page', 'clone-n-export' ); ?></option>
                             <?php
                             $posts = get_posts(
                                 array(
@@ -147,25 +147,25 @@ class WP_Content_Porter_Admin {
                         </select>
                     </div>
                     
-                    <div class="wp-content-porter-form-row">
-                        <button id="wp-content-porter-generate-export" class="button button-primary"><?php esc_html_e( 'Generate Export Code', 'wp-content-porter' ); ?></button>
+                    <div class="clone-n-export-form-row">
+                        <button id="clone-n-export-generate-export" class="button button-primary"><?php esc_html_e( 'Generate Export Code', 'clone-n-export' ); ?></button>
                     </div>
                 </div>
                 
-                <div id="wp-content-porter-export-result" class="wp-content-porter-result" style="display: none;">
-                    <h3><?php esc_html_e( 'Export Code', 'wp-content-porter' ); ?></h3>
-                    <p><?php esc_html_e( 'Copy this code and paste it into the import field on your target WordPress site.', 'wp-content-porter' ); ?></p>
+                <div id="clone-n-export-export-result" class="clone-n-export-result" style="display: none;">
+                    <h3><?php esc_html_e( 'Export Code', 'clone-n-export' ); ?></h3>
+                    <p><?php esc_html_e( 'Copy this code and paste it into the import field on your target WordPress site.', 'clone-n-export' ); ?></p>
                     
-                    <div class="wp-content-porter-form-row">
-                        <textarea id="wp-content-porter-export-code" readonly rows="10"></textarea>
+                    <div class="clone-n-export-form-row">
+                        <textarea id="clone-n-export-export-code" readonly rows="10"></textarea>
                     </div>
                     
-                    <div class="wp-content-porter-form-row">
-                        <button id="wp-content-porter-copy-export" class="button button-secondary"><?php esc_html_e( 'Copy to Clipboard', 'wp-content-porter' ); ?></button>
+                    <div class="clone-n-export-form-row">
+                        <button id="clone-n-export-copy-export" class="button button-secondary"><?php esc_html_e( 'Copy to Clipboard', 'clone-n-export' ); ?></button>
                     </div>
                 </div>
                 
-                <div id="wp-content-porter-export-notice" class="notice" style="display: none;"></div>
+                <div id="clone-n-export-export-notice" class="notice" style="display: none;"></div>
             </div>
         </div>
         <?php
@@ -176,59 +176,59 @@ class WP_Content_Porter_Admin {
      */
     public function render_import_page() {
         ?>
-        <div class="wrap wp-content-porter-wrap">
-            <h1><?php esc_html_e( 'WP Content Porter - Import', 'wp-content-porter' ); ?></h1>
+        <div class="wrap clone-n-export-wrap">
+            <h1><?php esc_html_e( 'Clone & Export - Import', 'clone-n-export' ); ?></h1>
             
-            <div class="wp-content-porter-card">
-                <h2><?php esc_html_e( 'Import Content', 'wp-content-porter' ); ?></h2>
-                <p><?php esc_html_e( 'Paste the export code generated by WP Content Porter and import it into this site.', 'wp-content-porter' ); ?></p>
+            <div class="clone-n-export-card">
+                <h2><?php esc_html_e( 'Import Content', 'clone-n-export' ); ?></h2>
+                <p><?php esc_html_e( 'Paste the export code generated by Clone & Export and import it into this site.', 'clone-n-export' ); ?></p>
                 
-                <div class="wp-content-porter-form">
-                    <?php wp_nonce_field( 'wp-content-porter-import', 'wp_content_porter_import_nonce' ); ?>
+                <div class="clone-n-export-form">
+                    <?php wp_nonce_field( 'clone-n-export-import', 'clone_n_export_import_nonce' ); ?>
                     
-                    <div class="wp-content-porter-form-row">
-                        <label for="wp-content-porter-import-code"><?php esc_html_e( 'Paste Export Code:', 'wp-content-porter' ); ?></label>
-                        <textarea id="wp-content-porter-import-code" name="import_code" rows="10" required></textarea>
+                    <div class="clone-n-export-form-row">
+                        <label for="clone-n-export-import-code"><?php esc_html_e( 'Paste Export Code:', 'clone-n-export' ); ?></label>
+                        <textarea id="clone-n-export-import-code" name="import_code" rows="10" required></textarea>
                     </div>
                     
-                    <div class="wp-content-porter-form-row">
-                        <button id="wp-content-porter-validate-import" class="button button-secondary"><?php esc_html_e( 'Validate', 'wp-content-porter' ); ?></button>
-                    </div>
-                </div>
-                
-                <div id="wp-content-porter-import-preview" class="wp-content-porter-preview" style="display: none;">
-                    <h3><?php esc_html_e( 'Import Preview', 'wp-content-porter' ); ?></h3>
-                    
-                    <div class="wp-content-porter-preview-content">
-                        <p><strong><?php esc_html_e( 'Title:', 'wp-content-porter' ); ?></strong> <span id="wp-content-porter-preview-title"></span></p>
-                        <p><strong><?php esc_html_e( 'Type:', 'wp-content-porter' ); ?></strong> <span id="wp-content-porter-preview-type"></span></p>
-                        <p><strong><?php esc_html_e( 'Media Count:', 'wp-content-porter' ); ?></strong> <span id="wp-content-porter-preview-media-count"></span></p>
-                    </div>
-                    
-                    <div class="wp-content-porter-form-row">
-                        <button id="wp-content-porter-import-now" class="button button-primary"><?php esc_html_e( 'Import Now', 'wp-content-porter' ); ?></button>
+                    <div class="clone-n-export-form-row">
+                        <button id="clone-n-export-validate-import" class="button button-secondary"><?php esc_html_e( 'Validate', 'clone-n-export' ); ?></button>
                     </div>
                 </div>
                 
-                <div id="wp-content-porter-import-progress" class="wp-content-porter-progress" style="display: none;">
-                    <h3><?php esc_html_e( 'Import Progress', 'wp-content-porter' ); ?></h3>
+                <div id="clone-n-export-import-preview" class="clone-n-export-preview" style="display: none;">
+                    <h3><?php esc_html_e( 'Import Preview', 'clone-n-export' ); ?></h3>
                     
-                    <div class="wp-content-porter-progress-bar-container">
-                        <div id="wp-content-porter-progress-bar" class="wp-content-porter-progress-bar"></div>
+                    <div class="clone-n-export-preview-content">
+                        <p><strong><?php esc_html_e( 'Title:', 'clone-n-export' ); ?></strong> <span id="clone-n-export-preview-title"></span></p>
+                        <p><strong><?php esc_html_e( 'Type:', 'clone-n-export' ); ?></strong> <span id="clone-n-export-preview-type"></span></p>
+                        <p><strong><?php esc_html_e( 'Media Count:', 'clone-n-export' ); ?></strong> <span id="clone-n-export-preview-media-count"></span></p>
                     </div>
                     
-                    <p id="wp-content-porter-progress-message"><?php esc_html_e( 'Importing...', 'wp-content-porter' ); ?></p>
+                    <div class="clone-n-export-form-row">
+                        <button id="clone-n-export-import-now" class="button button-primary"><?php esc_html_e( 'Import Now', 'clone-n-export' ); ?></button>
+                    </div>
                 </div>
                 
-                <div id="wp-content-porter-import-result" class="wp-content-porter-result" style="display: none;">
-                    <h3><?php esc_html_e( 'Import Complete', 'wp-content-porter' ); ?></h3>
+                <div id="clone-n-export-import-progress" class="clone-n-export-progress" style="display: none;">
+                    <h3><?php esc_html_e( 'Import Progress', 'clone-n-export' ); ?></h3>
                     
-                    <p><?php esc_html_e( 'Content imported successfully as a draft!', 'wp-content-porter' ); ?></p>
+                    <div class="clone-n-export-progress-bar-container">
+                        <div id="clone-n-export-progress-bar" class="clone-n-export-progress-bar"></div>
+                    </div>
                     
-                    <p><a id="wp-content-porter-view-imported" href="#" class="button button-primary"><?php esc_html_e( 'Edit Imported Content', 'wp-content-porter' ); ?></a></p>
+                    <p id="clone-n-export-progress-message"><?php esc_html_e( 'Importing...', 'clone-n-export' ); ?></p>
                 </div>
                 
-                <div id="wp-content-porter-import-notice" class="notice" style="display: none;"></div>
+                <div id="clone-n-export-import-result" class="clone-n-export-result" style="display: none;">
+                    <h3><?php esc_html_e( 'Import Complete', 'clone-n-export' ); ?></h3>
+                    
+                    <p><?php esc_html_e( 'Content imported successfully as a draft!', 'clone-n-export' ); ?></p>
+                    
+                    <p><a id="clone-n-export-view-imported" href="#" class="button button-primary"><?php esc_html_e( 'Edit Imported Content', 'clone-n-export' ); ?></a></p>
+                </div>
+                
+                <div id="clone-n-export-import-notice" class="notice" style="display: none;"></div>
             </div>
         </div>
         <?php
@@ -245,13 +245,13 @@ class WP_Content_Porter_Admin {
 
         // Check if post ID is provided.
         if ( ! isset( $_POST['post_id'] ) ) {
-            wp_send_json_error( array( 'message' => __( 'No post selected.', 'wp-content-porter' ) ) );
+            wp_send_json_error( array( 'message' => __( 'No post selected.', 'clone-n-export' ) ) );
         }
 
         $post_id = intval( $_POST['post_id'] );
 
         // Initialize exporter.
-        $exporter = new WP_Content_Porter_Exporter();
+        $exporter = new Clone_N_Export_Exporter();
         
         // Generate export.
         $export_data = $exporter->export_post( $post_id );
@@ -296,7 +296,7 @@ class WP_Content_Porter_Admin {
         }
 
         // Validate the import data.
-        $validator = new WP_Content_Porter_Importer();
+        $validator = new Clone_N_Export_Importer();
         $validation = $validator->validate_import_data( $import_data );
 
         if ( is_wp_error( $validation ) ) {
@@ -304,7 +304,7 @@ class WP_Content_Porter_Admin {
         }
 
         // Get media count.
-        $media_handler = new WP_Content_Porter_Media_Handler();
+        $media_handler = new Clone_N_Export_Media_Handler();
         $media_count = $media_handler->count_media_in_content( $import_data );
 
         wp_send_json_success(
@@ -341,7 +341,7 @@ class WP_Content_Porter_Admin {
         }
 
         // Initialize importer.
-        $importer = new WP_Content_Porter_Importer();
+        $importer = new Clone_N_Export_Importer();
         
         // Import the content.
         $result = $importer->import_content( $import_data );

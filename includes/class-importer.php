@@ -1,8 +1,8 @@
 <?php
 /**
- * Importer class for WP Content Porter.
+ * Importer class for Clone & Export.
  *
- * @package WP_Content_Porter
+ * @package Clone_N_Export
  */
 
 // Exit if accessed directly.
@@ -13,12 +13,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Importer class.
  */
-class WP_Content_Porter_Importer {
+class Clone_N_Export_Importer {
 
     /**
      * Media handler instance.
      *
-     * @var WP_Content_Porter_Media_Handler
+     * @var Clone_N_Export_Media_Handler
      */
     private $media_handler;
 
@@ -26,7 +26,7 @@ class WP_Content_Porter_Importer {
      * Initialize the importer class.
      */
     public function __construct() {
-        $this->media_handler = new WP_Content_Porter_Media_Handler();
+        $this->media_handler = new Clone_N_Export_Media_Handler();
     }
 
     /**
@@ -45,7 +45,7 @@ class WP_Content_Porter_Importer {
                     'missing_required_field',
                     sprintf(
                         /* translators: %s: Field name */
-                        __( 'Missing required field: %s', 'wp-content-porter' ),
+                        __( 'Missing required field: %s', 'clone-n-export' ),
                         $field
                     )
                 );
@@ -59,7 +59,7 @@ class WP_Content_Porter_Importer {
                 'invalid_post_type',
                 sprintf(
                     /* translators: %s: Post type */
-                    __( 'Invalid post type: %s', 'wp-content-porter' ),
+                    __( 'Invalid post type: %s', 'clone-n-export' ),
                     $import_data['post_type']
                 )
             );
@@ -85,12 +85,12 @@ class WP_Content_Porter_Importer {
         if ( 'post' === $import_data['post_type'] && ! current_user_can( 'publish_posts' ) ) {
             return new WP_Error(
                 'permission_denied',
-                __( 'You do not have permission to create posts.', 'wp-content-porter' )
+                __( 'You do not have permission to create posts.', 'clone-n-export' )
             );
         } elseif ( 'page' === $import_data['post_type'] && ! current_user_can( 'publish_pages' ) ) {
             return new WP_Error(
                 'permission_denied',
-                __( 'You do not have permission to create pages.', 'wp-content-porter' )
+                __( 'You do not have permission to create pages.', 'clone-n-export' )
             );
         }
 

@@ -1,8 +1,8 @@
 <?php
 /**
- * Media Handler class for WP Content Porter.
+ * Media Handler class for Clone & Export.
  *
- * @package WP_Content_Porter
+ * @package Clone_N_Export
  */
 
 // Exit if accessed directly.
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Media Handler class.
  */
-class WP_Content_Porter_Media_Handler {
+class Clone_N_Export_Media_Handler {
 
     /**
      * Extract media references from export data.

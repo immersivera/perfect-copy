@@ -1,28 +1,28 @@
 /**
- * WP Content Porter Admin JavaScript
+ * Clone & Export Admin JavaScript
  */
 jQuery(document).ready(function($) {
     // Export functionality
-    const $generateExportBtn = $('#wp-content-porter-generate-export');
-    const $exportResult = $('#wp-content-porter-export-result');
-    const $exportCode = $('#wp-content-porter-export-code');
-    const $copyExportBtn = $('#wp-content-porter-copy-export');
-    const $exportNotice = $('#wp-content-porter-export-notice');
+    const $generateExportBtn = $('#clone-n-export-generate-export');
+    const $exportResult = $('#clone-n-export-export-result');
+    const $exportCode = $('#clone-n-export-export-code');
+    const $copyExportBtn = $('#clone-n-export-copy-export');
+    const $exportNotice = $('#clone-n-export-export-notice');
     
     // Import functionality
-    const $validateImportBtn = $('#wp-content-porter-validate-import');
-    const $importCode = $('#wp-content-porter-import-code');
-    const $importPreview = $('#wp-content-porter-import-preview');
-    const $previewTitle = $('#wp-content-porter-preview-title');
-    const $previewType = $('#wp-content-porter-preview-type');
-    const $previewMediaCount = $('#wp-content-porter-preview-media-count');
-    const $importNowBtn = $('#wp-content-porter-import-now');
-    const $importProgress = $('#wp-content-porter-import-progress');
-    const $progressBar = $('#wp-content-porter-progress-bar');
-    const $progressMessage = $('#wp-content-porter-progress-message');
-    const $importResult = $('#wp-content-porter-import-result');
-    const $viewImportedBtn = $('#wp-content-porter-view-imported');
-    const $importNotice = $('#wp-content-porter-import-notice');
+    const $validateImportBtn = $('#clone-n-export-validate-import');
+    const $importCode = $('#clone-n-export-import-code');
+    const $importPreview = $('#clone-n-export-import-preview');
+    const $previewTitle = $('#clone-n-export-preview-title');
+    const $previewType = $('#clone-n-export-preview-type');
+    const $previewMediaCount = $('#clone-n-export-preview-media-count');
+    const $importNowBtn = $('#clone-n-export-import-now');
+    const $importProgress = $('#clone-n-export-import-progress');
+    const $progressBar = $('#clone-n-export-progress-bar');
+    const $progressMessage = $('#clone-n-export-progress-message');
+    const $importResult = $('#clone-n-export-import-result');
+    const $viewImportedBtn = $('#clone-n-export-view-imported');
+    const $importNotice = $('#clone-n-export-import-notice');
     
     /**
      * Display notice message
@@ -50,7 +50,7 @@ jQuery(document).ready(function($) {
     $generateExportBtn.on('click', function(e) {
         e.preventDefault();
         
-        const postId = $('#wp-content-porter-post-select').val();
+        const postId = $('#clone-n-export-post-select').val();
         
         if (!postId) {
             showNotice($exportNotice, wpContentPorterAdmin.i18n.exportError + ' ' + 
@@ -63,12 +63,12 @@ jQuery(document).ready(function($) {
         
         // AJAX request to generate export code
         $.ajax({
-            url: wpContentPorterAdmin.ajaxUrl,
+            url: cloneNExportAdmin.ajaxUrl,
             type: 'POST',
             data: {
-                action: 'wp_content_porter_export',
+                action: 'clone_n_export_export',
                 post_id: postId,
-                nonce: wpContentPorterAdmin.nonce
+                nonce: cloneNExportAdmin.nonce
             },
             success: function(response) {
                 $generateExportBtn.prop('disabled', false).text('Generate Export Code');
@@ -77,20 +77,20 @@ jQuery(document).ready(function($) {
                     // Show export code
                     $exportCode.val(response.data.json);
                     $exportResult.show();
-                    showNotice($exportNotice, wpContentPorterAdmin.i18n.exportSuccess, 'success');
+                    showNotice($exportNotice, cloneNExportAdmin.i18n.exportSuccess, 'success');
                     
                     // Scroll to export code
                     $('html, body').animate({
                         scrollTop: $exportResult.offset().top - 100
                     }, 300);
                 } else {
-                    const errorMsg = response.data ? response.data.message : wpContentPorterAdmin.i18n.exportError;
+                    const errorMsg = response.data ? response.data.message : cloneNExportAdmin.i18n.exportError;
                     showNotice($exportNotice, errorMsg, 'error');
                 }
             },
             error: function() {
                 $generateExportBtn.prop('disabled', false).text('Generate Export Code');
-                showNotice($exportNotice, wpContentPorterAdmin.i18n.exportError, 'error');
+                showNotice($exportNotice, cloneNExportAdmin.i18n.exportError, 'error');
             }
         });
     });
@@ -106,9 +106,9 @@ jQuery(document).ready(function($) {
         try {
             // Copy to clipboard
             document.execCommand('copy');
-            showNotice($exportNotice, wpContentPorterAdmin.i18n.copySuccess, 'success');
+            showNotice($exportNotice, cloneNExportAdmin.i18n.copySuccess, 'success');
         } catch (err) {
-            showNotice($exportNotice, wpContentPorterAdmin.i18n.copyError, 'error');
+            showNotice($exportNotice, cloneNExportAdmin.i18n.copyError, 'error');
         }
     });
     
@@ -130,12 +130,12 @@ jQuery(document).ready(function($) {
         
         // AJAX request to validate import code
         $.ajax({
-            url: wpContentPorterAdmin.ajaxUrl,
+            url: cloneNExportAdmin.ajaxUrl,
             type: 'POST',
             data: {
-                action: 'wp_content_porter_validate_import',
+                action: 'clone_n_export_validate_import',
                 import_code: importCode,
-                nonce: wpContentPorterAdmin.nonce
+                nonce: cloneNExportAdmin.nonce
             },
             success: function(response) {
                 $validateImportBtn.prop('disabled', false).text('Validate');
@@ -147,21 +147,21 @@ jQuery(document).ready(function($) {
                     $previewMediaCount.text(response.data.media_count);
                     $importPreview.show();
                     
-                    showNotice($importNotice, wpContentPorterAdmin.i18n.validationSuccess, 'success');
+                    showNotice($importNotice, cloneNExportAdmin.i18n.validationSuccess, 'success');
                     
                     // Scroll to preview
                     $('html, body').animate({
                         scrollTop: $importPreview.offset().top - 100
                     }, 300);
                 } else {
-                    const errorMsg = response.data ? response.data.message : wpContentPorterAdmin.i18n.validationError;
+                    const errorMsg = response.data ? response.data.message : cloneNExportAdmin.i18n.validationError;
                     showNotice($importNotice, errorMsg, 'error');
                     $importPreview.hide();
                 }
             },
             error: function() {
                 $validateImportBtn.prop('disabled', false).text('Validate');
-                showNotice($importNotice, wpContentPorterAdmin.i18n.validationError, 'error');
+                showNotice($importNotice, cloneNExportAdmin.i18n.validationError, 'error');
                 $importPreview.hide();
             }
         });
@@ -188,7 +188,7 @@ jQuery(document).ready(function($) {
         $importProgress.show();
         $importResult.hide(); // Ensure result is hidden before starting
         $progressBar.css('width', '10%');
-        $progressMessage.text(wpContentPorterAdmin.i18n.processingContent);
+        $progressMessage.text(cloneNExportAdmin.i18n.processingContent);
         
         // Initialize progress simulation
         let progressComplete = false;
@@ -203,12 +203,12 @@ jQuery(document).ready(function($) {
         
         // AJAX request to import content
         $.ajax({
-            url: wpContentPorterAdmin.ajaxUrl,
+            url: cloneNExportAdmin.ajaxUrl,
             type: 'POST',
             data: {
-                action: 'wp_content_porter_import',
+                action: 'clone_n_export_import',
                 import_code: importCode,
-                nonce: wpContentPorterAdmin.nonce
+                nonce: cloneNExportAdmin.nonce
             },
             success: function(response) {
                 $importNowBtn.prop('disabled', false).text('Import Now');
@@ -216,10 +216,10 @@ jQuery(document).ready(function($) {
                 
                 if (response.success && response.data) {
                     responseData = response.data;
-                    showNotice($importNotice, wpContentPorterAdmin.i18n.importSuccess, 'success');
+                    showNotice($importNotice, cloneNExportAdmin.i18n.importSuccess, 'success');
                     checkIfReadyToShowResult();
                 } else {
-                    const errorMsg = response.data ? response.data.message : wpContentPorterAdmin.i18n.importError;
+                    const errorMsg = response.data ? response.data.message : cloneNExportAdmin.i18n.importError;
                     showNotice($importNotice, errorMsg, 'error');
                     $importProgress.hide();
                     $importPreview.show();
@@ -228,7 +228,7 @@ jQuery(document).ready(function($) {
             error: function() {
                 $importNowBtn.prop('disabled', false).text('Import Now');
                 serverResponseReceived = true;
-                showNotice($importNotice, wpContentPorterAdmin.i18n.importError, 'error');
+                showNotice($importNotice, cloneNExportAdmin.i18n.importError, 'error');
                 $importProgress.hide();
                 $importPreview.show();
             }
@@ -265,8 +265,8 @@ jQuery(document).ready(function($) {
     // Simulate progress updates
     function simulateProgressUpdates(callback) {
         const steps = [
-            { percent: 25, message: wpContentPorterAdmin.i18n.processingContent },
-            { percent: 50, message: wpContentPorterAdmin.i18n.downloadingMedia },
+            { percent: 25, message: cloneNExportAdmin.i18n.processingContent },
+            { percent: 50, message: cloneNExportAdmin.i18n.downloadingMedia },
             { percent: 75, message: 'Creating post and importing content...' },
             { percent: 90, message: 'Finalizing import...' },
             { percent: 100, message: 'Import completed!' }

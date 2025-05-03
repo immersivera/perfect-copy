@@ -1,17 +1,17 @@
 <?php
 /**
- * Plugin Name: WP Content Porter
+ * Plugin Name: Clone & Export
  * Plugin URI: 
  * Description: A WordPress plugin designed to simplify the process of duplicating and transferring content between WordPress sites through a JSON-based export/import system.
  * Version: 1.0.0
  * Author: 
  * Author URI: 
- * Text Domain: wp-content-porter
+ * Text Domain: clone-n-export
  * Domain Path: /languages
  * License: GPL v2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  *
- * @package WP_Content_Porter
+ * @package Clone_N_Export
  */
 
 // Exit if accessed directly.
@@ -20,15 +20,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants.
-define( 'WP_CONTENT_PORTER_VERSION', '1.0.0' );
-define( 'WP_CONTENT_PORTER_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'WP_CONTENT_PORTER_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'WP_CONTENT_PORTER_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+define( 'CLONE_N_EXPORT_VERSION', '1.0.0' );
+define( 'CLONE_N_EXPORT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'CLONE_N_EXPORT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'CLONE_N_EXPORT_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
 /**
  * Main plugin class.
  */
-class WP_Content_Porter {
+class Clone_N_Export {
 
     /**
      * Instance of this class.
@@ -63,11 +63,11 @@ class WP_Content_Porter {
      */
     private function load_dependencies() {
         // Include required files.
-        require_once WP_CONTENT_PORTER_PLUGIN_DIR . 'includes/class-admin.php';
-        require_once WP_CONTENT_PORTER_PLUGIN_DIR . 'includes/class-exporter.php';
-        require_once WP_CONTENT_PORTER_PLUGIN_DIR . 'includes/class-importer.php';
-        require_once WP_CONTENT_PORTER_PLUGIN_DIR . 'includes/class-media-handler.php';
-        require_once WP_CONTENT_PORTER_PLUGIN_DIR . 'includes/class-json-processor.php';
+        require_once CLONE_N_EXPORT_PLUGIN_DIR . 'includes/class-admin.php';
+        require_once CLONE_N_EXPORT_PLUGIN_DIR . 'includes/class-exporter.php';
+        require_once CLONE_N_EXPORT_PLUGIN_DIR . 'includes/class-importer.php';
+        require_once CLONE_N_EXPORT_PLUGIN_DIR . 'includes/class-media-handler.php';
+        require_once CLONE_N_EXPORT_PLUGIN_DIR . 'includes/class-json-processor.php';
     }
 
     /**
@@ -81,7 +81,7 @@ class WP_Content_Porter {
         register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
 
         // Initialize classes.
-        $admin = new WP_Content_Porter_Admin();
+        $admin = new Clone_N_Export_Admin();
     }
 
     /**
@@ -102,9 +102,9 @@ class WP_Content_Porter {
 }
 
 // Initialize the plugin.
-function wp_content_porter_init() {
-    return WP_Content_Porter::get_instance();
+function clone_n_export_init() {
+    return Clone_N_Export::get_instance();
 }
 
 // Start the plugin.
-wp_content_porter_init();
+clone_n_export_init();

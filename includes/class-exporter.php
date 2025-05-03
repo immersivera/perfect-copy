@@ -1,8 +1,8 @@
 <?php
 /**
- * Exporter class for WP Content Porter.
+ * Exporter class for Clone & Export.
  *
- * @package WP_Content_Porter
+ * @package Clone_N_Export
  */
 
 // Exit if accessed directly.
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Exporter class.
  */
-class WP_Content_Porter_Exporter {
+class Clone_N_Export_Exporter {
 
     /**
      * Export a post or page.
@@ -26,12 +26,12 @@ class WP_Content_Porter_Exporter {
         $post = get_post( $post_id );
 
         if ( ! $post ) {
-            return new WP_Error( 'post_not_found', __( 'Post not found.', 'wp-content-porter' ) );
+            return new WP_Error( 'post_not_found', __( 'Post not found.', 'clone-n-export' ) );
         }
 
         // Check user capability.
         if ( ! current_user_can( 'edit_post', $post_id ) ) {
-            return new WP_Error( 'permission_denied', __( 'You do not have permission to export this post.', 'wp-content-porter' ) );
+            return new WP_Error( 'permission_denied', __( 'You do not have permission to export this post.', 'clone-n-export' ) );
         }
 
         // Prepare export data.
@@ -47,7 +47,7 @@ class WP_Content_Porter_Exporter {
             'meta'          => $this->get_post_meta( $post_id ),
             'taxonomies'    => $this->get_post_taxonomies( $post_id ),
             'featured_image' => $this->get_featured_image( $post_id ),
-            'export_version' => WP_CONTENT_PORTER_VERSION,
+            'export_version' => CLONE_N_EXPORT_VERSION,
             'content_blocks' => $this->get_content_blocks( $post ),
             'acf_fields'    => $this->get_acf_fields( $post_id ),
         );
