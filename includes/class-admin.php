@@ -94,8 +94,8 @@ class SiteSync_Cloner_Admin {
         
         // Register default settings if they don't exist
         $default_settings = array(
-            'handle_media' => 1,
-            'preserve_dates' => 1,
+            'handle_media' => 1, // Media handling ON by default
+            'preserve_dates' => 0, // Original post dates OFF by default
             'post_types' => array('post', 'page'),
         );
         
@@ -356,8 +356,8 @@ class SiteSync_Cloner_Admin {
         // Set defaults if settings don't exist
         if (empty($settings)) {
             $settings = array(
-                'handle_media' => 1,
-                'preserve_dates' => 1,
+                'handle_media' => 1, // Media handling ON by default
+                'preserve_dates' => 0, // Original post dates OFF by default
                 'post_types' => array('post', 'page'),
             );
         }
