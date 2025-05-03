@@ -1,15 +1,18 @@
 <?php
 /**
  * Plugin Name: SiteSync Cloner
- * Plugin URI: 
+ * Plugin URI: https://example.com/sitesync-cloner
  * Description: A WordPress plugin designed to simplify the process of duplicating and transferring content between WordPress sites through a JSON-based export/import system.
  * Version: 1.0.0
- * Author: 
- * Author URI: 
+ * Author: SiteSync Team
+ * Author URI: https://example.com
  * Text Domain: sitesync-cloner
  * Domain Path: /languages
  * License: GPL v2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
+ * Requires at least: 5.0
+ * Requires PHP: 7.0
+ * Tested up to: 6.4
  *
  * @package SiteSync_Cloner
  */

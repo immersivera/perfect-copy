@@ -15,7 +15,7 @@ const INCLUDES = [
   'assets',  // Include entire assets folder for structure
   'index.php',
   'sitesync-cloner.php',
-  'README.md'
+  'readme.txt'
 ];
 
 // Create index.php files for directories

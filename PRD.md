@@ -4,15 +4,9 @@
 
 SiteSync Cloner is a WordPress plugin designed to simplify the process of duplicating and transferring content between WordPress sites. It offers a streamlined, user-friendly approach to content migration through a JSON-based export/import system that preserves all essential content components.
 
-## Target Audience
-
-- WordPress content creators and bloggers
-- Developers who manage multiple WordPress environments (dev/staging/production)
-- Non-technical WordPress users who need to duplicate content across sites
-
 ## Problem Statement
 
-Transferring WordPress content between sites is currently a complex, multi-step process that requires technical knowledge. Existing solutions are either too complicated for average users or require direct server access. Content creators need a simple, reliable way to move their work between development and production environments.
+Transferring WordPress content between sites is currently a complex, multi-step process that requires technical knowledge. Existing solutions are either too complicated for average users or require direct server access. Content creators/Developers need a simple, reliable way to move their work between development and production environments.
 
 ## Solution
 
@@ -109,7 +103,6 @@ sitesync-cloner/
 ```
 
 ### Database
-- No custom tables required for MVP
 - Will use WordPress options API for plugin settings
 - Temporary import data stored in transients
 
@@ -152,7 +145,7 @@ This PRD provides a comprehensive guide for implementing the WP Content Porter p
 Release Checklist
 
 ✅ Update version numbers in all necessary files
-✅ Update changelog in README.md
+✅ Update changelog
 ✅ Run tests (if you have them)
 ✅ Build production version (npm run export)
 ✅ Test on a staging site
