@@ -148,3 +148,14 @@ sitesync-cloner/
 - Number of active installations
 
 This PRD provides a comprehensive guide for implementing the WP Content Porter plugin MVP. Development should focus on creating a stable, user-friendly core experience before adding additional features.
+
+Release Checklist
+
+✅ Update version numbers in all necessary files
+✅ Update changelog in README.md
+✅ Run tests (if you have them)
+✅ Build production version (npm run export)
+✅ Test on a staging site
+✅ Create Git tag and commit
+✅ Push to repository
+✅ Distribute to WordPress.org or other channels
