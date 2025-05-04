@@ -1,9 +1,8 @@
 === Perfect Copy ===
-Contributors: perfectcopyteam
-Donate link: https://example.com/donate
-Tags: perfect copy, content migration, export, import, content cloning, post duplication, page duplication, media duplication, post duplicator, page duplicator, media duplicator
+Contributors: immersivera
+Tags: perfect copy, content migration, page duplicator, content cloner, post transfer
 Requires at least: 5.0
-Tested up to: 6.4
+Tested up to: 6.8
 Requires PHP: 7.0
 Stable tag: 1.0.0
 License: GPLv2 or later
