@@ -416,7 +416,7 @@ class Perfect_Copy_Admin {
         
         // Check if specific settings exist
         $handle_media = isset($settings['handle_media']) ? (bool)$settings['handle_media'] : true;
-        $preserve_dates = isset($settings['preserve_dates']) ? (bool)$settings['preserve_dates'] : true;
+        $preserve_dates = isset($settings['preserve_dates']) ? (bool)$settings['preserve_dates'] : false;
         ?>
         <div class="wrap perfectcopy-wrap">
             <h1><?php esc_html_e( 'Perfect Copy - Settings', 'perfectcopy' ); ?></h1>
