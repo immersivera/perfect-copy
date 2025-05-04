@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: Perfect Copy
- * Plugin URI: https://example.com/perfectcopy
+ * Plugin URI: https://immersivera.dev/perfectcopy
  * Description: A WordPress plugin designed to simplify the process of duplicating and transferring content between WordPress sites through a JSON-based export/import system.
  * Version: 1.0.0
  * Author: PerfectCopy Team
- * Author URI: https://example.com
+ * Author URI: https://immersivera.dev
  * Text Domain: perfectcopy
  * Domain Path: /languages
  * License: GPL v2 or later
