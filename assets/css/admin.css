@@ -1,13 +1,13 @@
 /**
- * SiteSync Cloner Admin Styles
+ * Perfect Copy Admin Styles
  */
 
-.sitesync-cloner-wrap {
+.perfectcopy-wrap {
     max-width: 800px;
     margin: 20px 0;
 }
 
-.sitesync-cloner-card {
+.perfectcopy-card {
     background: #fff;
     border: 1px solid #ccd0d4;
     border-radius: 4px;
@@ -16,52 +16,52 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.sitesync-cloner-form {
+.perfectcopy-form {
     margin: 20px 0;
 }
 
-.sitesync-cloner-form-row {
+.perfectcopy-form-row {
     margin-bottom: 15px;
 }
 
-.sitesync-cloner-form-row button {
+.perfectcopy-form-row button {
     margin-right: 10px;
 }
 
-.sitesync-cloner-form-row label {
+.perfectcopy-form-row label {
     display: block;
     margin-bottom: 5px;
     font-weight: 600;
 }
 
-.sitesync-cloner-form-row select,
-.sitesync-cloner-form-row textarea,
-.sitesync-cloner-form-row input[type="file"],
-.sitesync-cloner-form-row input[type="text"] {
+.perfectcopy-form-row select,
+.perfectcopy-form-row textarea,
+.perfectcopy-form-row input[type="file"],
+.perfectcopy-form-row input[type="text"] {
     width: 100%;
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
 }
 
-.sitesync-cloner-file-input {
+.perfectcopy-file-input {
     padding: 10px 0;
     margin-bottom: 5px;
 }
 
-.clone-n-export-form-row textarea {
+.perfectcopy-form-row textarea {
     font-family: monospace;
     resize: vertical;
     min-height: 150px;
 }
 
-.sitesync-cloner-result {
+.perfectcopy-result {
     margin-top: 20px;
     padding-top: 20px;
     border-top: 1px solid #eee;
 }
 
-.sitesync-cloner-preview {
+.perfectcopy-preview {
     margin-top: 20px;
     padding: 15px;
     background: #f9f9f9;
@@ -69,15 +69,15 @@
     border: 1px solid #eee;
 }
 
-.sitesync-cloner-preview-content {
+.perfectcopy-preview-content {
     margin-bottom: 15px;
 }
 
-.sitesync-cloner-progress {
+.perfectcopy-progress {
     margin-top: 20px;
 }
 
-.sitesync-cloner-progress-bar-container {
+.perfectcopy-progress-bar-container {
     height: 20px;
     background-color: #f1f1f1;
     border-radius: 10px;
@@ -85,46 +85,46 @@
     overflow: hidden;
 }
 
-.sitesync-cloner-progress-bar {
+.perfectcopy-progress-bar {
     height: 100%;
     width: 0;
     background-color: #0073aa;
     transition: width 0.3s ease;
 }
 
-.sitesync-cloner-notice {
+.perfectcopy-notice {
     padding: 10px 15px;
     border-radius: 4px;
     margin: 15px 0;
 }
 
-.sitesync-cloner-notice.success {
+.perfectcopy-notice.success {
     background-color: #ecf9ec;
     border: 1px solid #57c057;
     color: #2a8f2a;
 }
 
-.sitesync-cloner-notice.error {
+.perfectcopy-notice.error {
     background-color: #f9ecec;
     border: 1px solid #c05757;
     color: #8f2a2a;
 }
 
-.sitesync-cloner-notice.info {
+.perfectcopy-notice.info {
     background-color: #ecf2f9;
     border: 1px solid #5779c0;
     color: #2a5b8f;
 }
 
 /* Tabs styling */
-.sitesync-cloner-tabs {
+.perfectcopy-tabs {
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
     margin-bottom: 10px;
 }
 
-.sitesync-cloner-tab {
+.perfectcopy-tab {
     padding: 8px 12px;
     background-color: #f1f1f1;
     border: 1px solid #ddd;
@@ -137,18 +137,18 @@
     transition: all 0.2s ease;
 }
 
-.sitesync-cloner-tab:hover {
+.perfectcopy-tab:hover {
     background-color: #e8e8e8;
 }
 
-.sitesync-cloner-tab.active {
+.perfectcopy-tab.active {
     background-color: #0073aa;
     border-color: #0073aa;
     color: #fff;
 }
 
 /* Content grid */
-.sitesync-cloner-content-grid {
+.perfectcopy-content-grid {
     display: grid;
     grid-template-columns: repeat(1, 1fr);
     gap: 10px;
@@ -162,12 +162,12 @@
 }
 
 @media screen and (min-width: 600px) {
-    .sitesync-cloner-content-grid {
+    .perfectcopy-content-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-.sitesync-cloner-content-card {
+.perfectcopy-content-card {
     display: flex;
     align-items: center;
     background: white;
@@ -179,42 +179,42 @@
     position: relative;
 }
 
-.sitesync-cloner-content-card:hover {
+.perfectcopy-content-card:hover {
     border-color: #0073aa;
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
 }
 
-.sitesync-cloner-content-card.selected {
+.perfectcopy-content-card.selected {
     background-color: #f0f6fc;
     border-color: #0073aa;
 }
 
-.sitesync-cloner-card-checkbox {
+.perfectcopy-card-checkbox {
     margin-right: 10px !important;
 }
 
-.sitesync-cloner-card-info {
+.perfectcopy-card-info {
     flex-grow: 1;
 }
 
-.sitesync-cloner-card-title {
+.perfectcopy-card-title {
     font-weight: 600;
     margin-bottom: 4px;
 }
 
-.sitesync-cloner-card-meta {
+.perfectcopy-card-meta {
     color: #666;
     font-size: 12px;
 }
 
-.sitesync-cloner-empty-message {
+.perfectcopy-empty-message {
     grid-column: 1 / -1;
     text-align: center;
     padding: 30px;
     color: #666;
 }
 
-.sitesync-cloner-selection-info {
+.perfectcopy-selection-info {
     margin-top: 10px;
     font-weight: 600;
     color: #0073aa;
@@ -222,39 +222,39 @@
 }
 
 /* Loading indicator */
-.sitesync-cloner-loading {
+.perfectcopy-loading {
     display: flex;
     align-items: center;
     margin-top: 10px;
 }
 
-.sitesync-cloner-loading .spinner {
+.perfectcopy-loading .spinner {
     margin-top: 0;
     margin-right: 5px;
 }
 
 /* Pagination styles */
-.sitesync-cloner-pagination {
+.perfectcopy-pagination {
     grid-column: 1 / -1;
     margin-top: 15px;
     padding-top: 15px;
     border-top: 1px solid #ddd;
 }
 
-.sitesync-cloner-pagination-info {
+.perfectcopy-pagination-info {
     margin-bottom: 10px;
     text-align: center;
     color: #666;
 }
 
-.sitesync-cloner-pagination-buttons {
+.perfectcopy-pagination-buttons {
     display: flex;
     justify-content: center;
     gap: 10px;
 }
 
 /* Select dropdown styles */
-.sitesync-cloner-select {
+.perfectcopy-select {
     width: 100%;
     max-width: 300px;
     padding: 8px;
@@ -267,7 +267,7 @@
 }
 
 /* Quick Export Modal Styles */
-.sitesync-modal {
+.perfectcopy-modal {
     display: none;
     position: fixed;
     z-index: 999999;
@@ -279,7 +279,7 @@
     overflow: auto;
 }
 
-.sitesync-modal-content {
+.perfectcopy-modal-content {
     position: relative;
     background-color: #fff;
     margin: 10% auto;
@@ -297,7 +297,7 @@
     to {opacity: 1; transform: translateY(0);}
 }
 
-.sitesync-modal-header {
+.perfectcopy-modal-header {
     padding: 15px 20px;
     border-bottom: 1px solid #e5e5e5;
     display: flex;
@@ -305,35 +305,35 @@
     align-items: center;
 }
 
-.sitesync-modal-header h3 {
+.perfectcopy-modal-header h3 {
     margin: 0;
     padding: 0;
 }
 
-.sitesync-modal-close {
+.perfectcopy-modal-close {
     color: #aaa;
     font-size: 24px;
     font-weight: bold;
     cursor: pointer;
 }
 
-.sitesync-modal-close:hover {
+.perfectcopy-modal-close:hover {
     color: #555;
 }
 
-.sitesync-modal-body {
+.perfectcopy-modal-body {
     padding: 20px;
 }
 
-.sitesync-modal-message {
+.perfectcopy-modal-message {
     margin-bottom: 15px;
 }
 
-.sitesync-modal-message.error {
+.perfectcopy-modal-message.error {
     color: #ff0000;
 }
 
-.sitesync-modal-code {
+.perfectcopy-modal-code {
     width: 100%;
     font-family: monospace;
     padding: 10px;
@@ -343,64 +343,64 @@
     resize: vertical;
 }
 
-.sitesync-modal-actions {
+.perfectcopy-modal-actions {
     display: flex;
     gap: 10px;
     justify-content: flex-end;
 }
 
 /* Meta Box Styles */
-.sitesync-meta-actions {
+.perfectcopy-meta-actions {
     margin-bottom: 10px;
 }
 
-.sitesync-meta-actions .button {
+.perfectcopy-meta-actions .button {
     margin: 0 5px 5px 0;
     display: inline-block;
 }
 
-.sitesync-meta-actions p.description {
+.perfectcopy-meta-actions p.description {
     font-size: 12px;
     color: #666;
     margin-top: 5px;
 }
 
-.sitesync-export-code {
+.perfectcopy-export-code {
     width: 100%;
     font-family: monospace;
     margin: 10px 0;
     resize: vertical;
 }
 
-.sitesync-export-result p.success {
+.perfectcopy-export-result p.success {
     color: green;
 }
 
-.sitesync-export-result p.error {
+.perfectcopy-export-result p.error {
     color: red;
 }
 
-.sitesync-clone-button {
+.perfectcopy-clone-button {
     margin-top: 5px !important;
 }
 
 /* Additional responsive styles */
 @media screen and (max-width: 782px) {
-    .sitesync-cloner-form-row button {
+    .perfectcopy-form-row button {
         width: 100%;
         margin-right: 0;
         margin-bottom: 10px;
     }
     
-    .sitesync-cloner-tabs {
+    .perfectcopy-tabs {
         flex-direction: column;
     }
     
-    .sitesync-cloner-select {
+    .perfectcopy-select {
         max-width: 100%;
     }
     
-    .sitesync-modal-content {
+    .perfectcopy-modal-content {
         width: 90%;
         margin: 20% auto;
     }

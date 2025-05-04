@@ -1,8 +1,8 @@
 <?php
 /**
- * Exporter class for SiteSync Cloner.
+ * Exporter class for Perfect Copy.
  *
- * @package SiteSync_Cloner
+ * @package Perfect_Copy
  */
 
 // Exit if accessed directly.
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Exporter class.
  */
-class SiteSync_Cloner_Exporter {
+class Perfect_Copy_Exporter {
 
     /**
      * Export multiple posts or pages.
@@ -23,13 +23,13 @@ class SiteSync_Cloner_Exporter {
      */
     public function export_batch( $post_ids ) {
         if ( ! is_array( $post_ids ) || empty( $post_ids ) ) {
-            return new WP_Error( 'invalid_post_ids', __( 'No valid post IDs provided for export.', 'sitesync-cloner' ) );
+            return new WP_Error( 'invalid_post_ids', __( 'No valid post IDs provided for export.', 'perfectcopy' ) );
         }
         
         $batch_data = array(
             'batch_id' => uniqid( 'batch_' ),
             'export_date' => current_time( 'mysql' ),
-            'export_version' => SITESYNC_CLONER_VERSION,
+            'export_version' => PERFECT_COPY_VERSION,
             'count' => count( $post_ids ),
             'items' => array(),
         );
@@ -63,12 +63,12 @@ class SiteSync_Cloner_Exporter {
         $post = get_post( $post_id );
 
         if ( ! $post ) {
-            return new WP_Error( 'post_not_found', __( 'Post not found.', 'sitesync-cloner' ) );
+            return new WP_Error( 'post_not_found', __( 'Post not found.', 'perfectcopy' ) );
         }
 
         // Check user capability.
         if ( ! current_user_can( 'edit_post', $post_id ) ) {
-            return new WP_Error( 'permission_denied', __( 'You do not have permission to export this post.', 'sitesync-cloner' ) );
+            return new WP_Error( 'permission_denied', __( 'You do not have permission to export this post.', 'perfectcopy' ) );
         }
 
         // Prepare export data.
@@ -84,7 +84,7 @@ class SiteSync_Cloner_Exporter {
             'meta'          => $this->get_post_meta( $post_id ),
             'taxonomies'    => $this->get_post_taxonomies( $post_id ),
             'featured_image' => $this->get_featured_image( $post_id ),
-            'export_version' => SITESYNC_CLONER_VERSION,
+            'export_version' => PERFECT_COPY_VERSION,
             'content_blocks' => $this->get_content_blocks( $post ),
             'acf_fields'    => $this->get_acf_fields( $post_id ),
         );
@@ -229,7 +229,7 @@ class SiteSync_Cloner_Exporter {
      * @return array Media references.
      */
     private function extract_media_references( $export_data ) {
-        $media_handler = new SiteSync_Cloner_Media_Handler();
+        $media_handler = new Perfect_Copy_Media_Handler();
         
         return $media_handler->extract_media_references( $export_data );
     }

@@ -1,19 +1,19 @@
 /**
- * SiteSync Cloner Admin JavaScript
+ * Perfect Copy Admin JavaScript
  */
 jQuery(document).ready(function($) {
     // Export functionality
-    const $generateExportBtn = $('#sitesync-cloner-generate-export');
-    const $exportResult = $('#sitesync-cloner-export-result');
-    const $exportCode = $('#sitesync-cloner-export-code');
-    const $copyExportBtn = $('#sitesync-cloner-copy-export');
-    const $saveExportBtn = $('#sitesync-cloner-save-export');
-    const $exportNotice = $('#sitesync-cloner-export-notice');
-    const $postTypeSelect = $('#sitesync-cloner-post-type');
-    const $searchInput = $('#sitesync-cloner-search');
-    const $contentGrid = $('#sitesync-cloner-content-grid');
-    const $loadingIndicator = $('#sitesync-cloner-loading');
-    const $selectedCount = $('#sitesync-cloner-selected-count');
+    const $generateExportBtn = $('#perfectcopy-generate-export');
+    const $exportResult = $('#perfectcopy-export-result');
+    const $exportCode = $('#perfectcopy-export-code');
+    const $copyExportBtn = $('#perfectcopy-copy-export');
+    const $saveExportBtn = $('#perfectcopy-save-export');
+    const $exportNotice = $('#perfectcopy-export-notice');
+    const $postTypeSelect = $('#perfectcopy-post-type');
+    const $searchInput = $('#perfectcopy-search');
+    const $contentGrid = $('#perfectcopy-content-grid');
+    const $loadingIndicator = $('#perfectcopy-loading');
+    const $selectedCount = $('#perfectcopy-selected-count');
     
     // Pagination tracking
     let currentPage = 1;
@@ -23,20 +23,20 @@ jQuery(document).ready(function($) {
     let selectedItems = [];
     
     // Import functionality
-    const $validateImportBtn = $('#sitesync-cloner-validate-import');
-    const $importCode = $('#sitesync-cloner-import-code');
-    const $importFile = $('#sitesync-cloner-import-file');
-    const $importPreview = $('#sitesync-cloner-import-preview');
-    const $previewTitle = $('#sitesync-cloner-preview-title');
-    const $previewType = $('#sitesync-cloner-preview-type');
-    const $previewMediaCount = $('#sitesync-cloner-preview-media-count');
-    const $importNowBtn = $('#sitesync-cloner-import-now');
-    const $importProgress = $('#sitesync-cloner-import-progress');
-    const $progressBar = $('#sitesync-cloner-progress-bar');
-    const $progressMessage = $('#sitesync-cloner-progress-message');
-    const $importResult = $('#sitesync-cloner-import-result');
-    const $viewImportedBtn = $('#sitesync-cloner-view-imported');
-    const $importNotice = $('#sitesync-cloner-import-notice');
+    const $validateImportBtn = $('#perfectcopy-validate-import');
+    const $importCode = $('#perfectcopy-import-code');
+    const $importFile = $('#perfectcopy-import-file');
+    const $importPreview = $('#perfectcopy-import-preview');
+    const $previewTitle = $('#perfectcopy-preview-title');
+    const $previewType = $('#perfectcopy-preview-type');
+    const $previewMediaCount = $('#perfectcopy-preview-media-count');
+    const $importNowBtn = $('#perfectcopy-import-now');
+    const $importProgress = $('#perfectcopy-import-progress');
+    const $progressBar = $('#perfectcopy-progress-bar');
+    const $progressMessage = $('#perfectcopy-progress-message');
+    const $importResult = $('#perfectcopy-import-result');
+    const $viewImportedBtn = $('#perfectcopy-view-imported');
+    const $importNotice = $('#perfectcopy-import-notice');
     
     /**
      * Display notice message
@@ -115,14 +115,14 @@ jQuery(document).ready(function($) {
         $loadingIndicator.show();
         
         $.ajax({
-            url: siteSyncClonerAdmin.ajaxUrl,
+            url: perfectcopyAdmin.ajaxUrl,
             type: 'POST',
             data: {
-                action: 'sitesync_cloner_load_posts',
+                action: 'perfectcopy_load_posts',
                 post_type: postType,
                 search: searchTerm,
                 page: page,
-                nonce: siteSyncClonerAdmin.nonce
+                nonce: perfectcopyAdmin.nonce
             },
             success: function(response) {
                 $loadingIndicator.hide();
@@ -136,17 +136,17 @@ jQuery(document).ready(function($) {
                             ? 'No content found matching "' + searchTerm + '"' 
                             : 'No content found for this post type';
                             
-                        $contentGrid.html('<div class="sitesync-cloner-empty-message">' + emptyMessage + '</div>');
+                        $contentGrid.html('<div class="perfectcopy-empty-message">' + emptyMessage + '</div>');
                         showNotice($exportNotice, emptyMessage, 'info');
                     } else {
                         // Add content cards to grid
                         $.each(data.posts, function(index, post) {
                             const cardHtml = `
-                                <div class="sitesync-cloner-content-card" data-id="${post.id}">
-                                    <input type="checkbox" class="sitesync-cloner-card-checkbox" id="content-${post.id}" value="${post.id}">
-                                    <div class="sitesync-cloner-card-info">
-                                        <div class="sitesync-cloner-card-title">${post.title}</div>
-                                        <div class="sitesync-cloner-card-meta">${post.meta || ''}</div>
+                                <div class="perfectcopy-content-card" data-id="${post.id}">
+                                    <input type="checkbox" class="perfectcopy-card-checkbox" id="content-${post.id}" value="${post.id}">
+                                    <div class="perfectcopy-card-info">
+                                        <div class="perfectcopy-card-title">${post.title}</div>
+                                        <div class="perfectcopy-card-meta">${post.meta || ''}</div>
                                     </div>
                                 </div>
                             `;
@@ -169,13 +169,13 @@ jQuery(document).ready(function($) {
                     }
                 } else {
                     const errorMsg = response.data ? response.data.message : 'Error loading content.';
-                    $contentGrid.html('<div class="sitesync-cloner-empty-message">' + errorMsg + '</div>');
+                    $contentGrid.html('<div class="perfectcopy-empty-message">' + errorMsg + '</div>');
                     showNotice($exportNotice, errorMsg, 'error');
                 }
             },
             error: function() {
                 $loadingIndicator.hide();
-                $contentGrid.html('<div class="sitesync-cloner-empty-message">Error loading content.</div>');
+                $contentGrid.html('<div class="perfectcopy-empty-message">Error loading content.</div>');
                 showNotice($exportNotice, 'Error loading content.', 'error');
             }
         });
@@ -191,13 +191,13 @@ jQuery(document).ready(function($) {
         
         // Create pagination container
         const paginationHtml = `
-            <div class="sitesync-cloner-pagination">
-                <div class="sitesync-cloner-pagination-info">
+            <div class="perfectcopy-pagination">
+                <div class="perfectcopy-pagination-info">
                     Showing page ${currentPage} of ${totalPages} (${totalPosts} total items)
                 </div>
-                <div class="sitesync-cloner-pagination-buttons">
-                    ${currentPage > 1 ? '<button class="button sitesync-cloner-prev-page">Previous</button>' : ''}
-                    ${currentPage < totalPages ? '<button class="button sitesync-cloner-next-page">Next</button>' : ''}
+                <div class="perfectcopy-pagination-buttons">
+                    ${currentPage > 1 ? '<button class="button perfectcopy-prev-page">Previous</button>' : ''}
+                    ${currentPage < totalPages ? '<button class="button perfectcopy-next-page">Next</button>' : ''}
                 </div>
             </div>
         `;
@@ -205,13 +205,13 @@ jQuery(document).ready(function($) {
         $contentGrid.append(paginationHtml);
         
         // Add click handlers for pagination buttons
-        $('.sitesync-cloner-prev-page').on('click', function() {
+        $('.perfectcopy-prev-page').on('click', function() {
             if (currentPage > 1) {
                 loadPosts(postType, searchTerm, currentPage - 1);
             }
         });
         
-        $('.sitesync-cloner-next-page').on('click', function() {
+        $('.perfectcopy-next-page').on('click', function() {
             if (currentPage < totalPages) {
                 loadPosts(postType, searchTerm, currentPage + 1);
             }
@@ -223,9 +223,9 @@ jQuery(document).ready(function($) {
      */
     function initializeCardHandlers() {
         // Handle checkbox clicks
-        $('.sitesync-cloner-card-checkbox').on('change', function(e) {
+        $('.perfectcopy-card-checkbox').on('change', function(e) {
             e.stopPropagation();
-            const $card = $(this).closest('.sitesync-cloner-content-card');
+            const $card = $(this).closest('.perfectcopy-content-card');
             const contentId = $card.data('id');
             
             if ($(this).is(':checked')) {
@@ -238,9 +238,9 @@ jQuery(document).ready(function($) {
         });
         
         // Handle card clicks (except on the checkbox)
-        $('.sitesync-cloner-content-card').on('click', function(e) {
+        $('.perfectcopy-content-card').on('click', function(e) {
             if (!$(e.target).is('input')) {
-                const $checkbox = $(this).find('.sitesync-cloner-card-checkbox');
+                const $checkbox = $(this).find('.perfectcopy-card-checkbox');
                 $checkbox.prop('checked', !$checkbox.prop('checked')).trigger('change');
             }
         });
@@ -289,26 +289,26 @@ jQuery(document).ready(function($) {
     /**
      * Handle quick export links in post list table
      */
-    $(document).on('click', '.sitesync-quick-export', function(e) {
+    $(document).on('click', '.perfectcopy-quick-export', function(e) {
         e.preventDefault();
         
         const url = $(this).attr('href');
         const postId = $(this).data('id');
         
         // Create modal dialog
-        const $modal = $('<div class="sitesync-modal">' +
-            '<div class="sitesync-modal-content">' +
-                '<div class="sitesync-modal-header">' +
-                    '<h3>' + siteSyncClonerAdmin.i18n.quickExportTitle + '</h3>' +
-                    '<span class="sitesync-modal-close">&times;</span>' +
+        const $modal = $('<div class="perfectcopy-modal">' +
+            '<div class="perfectcopy-modal-content">' +
+                '<div class="perfectcopy-modal-header">' +
+                    '<h3>' + perfectcopyAdmin.i18n.quickExportTitle + '</h3>' +
+                    '<span class="perfectcopy-modal-close">&times;</span>' +
                 '</div>' +
-                '<div class="sitesync-modal-body">' +
-                    '<p class="sitesync-modal-message">' + siteSyncClonerAdmin.i18n.exportGenerating + '</p>' +
-                    '<div class="sitesync-modal-result" style="display:none;">' +
-                        '<textarea readonly rows="8" class="sitesync-modal-code"></textarea>' +
-                        '<div class="sitesync-modal-actions">' +
-                            '<button class="button sitesync-modal-copy">' + siteSyncClonerAdmin.i18n.copyExport + '</button>' +
-                            '<button class="button sitesync-modal-download">' + siteSyncClonerAdmin.i18n.saveExport + '</button>' +
+                '<div class="perfectcopy-modal-body">' +
+                    '<p class="perfectcopy-modal-message">' + perfectcopyAdmin.i18n.exportGenerating + '</p>' +
+                    '<div class="perfectcopy-modal-result" style="display:none;">' +
+                        '<textarea readonly rows="8" class="perfectcopy-modal-code"></textarea>' +
+                        '<div class="perfectcopy-modal-actions">' +
+                            '<button class="button perfectcopy-modal-copy">' + perfectcopyAdmin.i18n.copyExport + '</button>' +
+                            '<button class="button perfectcopy-modal-download">' + perfectcopyAdmin.i18n.saveExport + '</button>' +
                         '</div>' +
                     '</div>' +
                 '</div>' +
@@ -320,7 +320,7 @@ jQuery(document).ready(function($) {
         $modal.fadeIn(200);
         
         // Close modal on click
-        $modal.find('.sitesync-modal-close').on('click', function() {
+        $modal.find('.perfectcopy-modal-close').on('click', function() {
             $modal.fadeOut(200, function() {
                 $modal.remove();
             });
@@ -336,28 +336,28 @@ jQuery(document).ready(function($) {
                     const data = response.data;
                     
                     // Show success message
-                    $modal.find('.sitesync-modal-message').text(data.message);
+                    $modal.find('.perfectcopy-modal-message').text(data.message);
                     
                     // Fill the textarea with export code
-                    $modal.find('.sitesync-modal-code').val(JSON.stringify(data.data, null, 2));
+                    $modal.find('.perfectcopy-modal-code').val(JSON.stringify(data.data, null, 2));
                     
                     // Show result container
-                    $modal.find('.sitesync-modal-result').show();
+                    $modal.find('.perfectcopy-modal-result').show();
                     
                     // Handle copy button
-                    $modal.find('.sitesync-modal-copy').on('click', function() {
-                        const $code = $modal.find('.sitesync-modal-code');
+                    $modal.find('.perfectcopy-modal-copy').on('click', function() {
+                        const $code = $modal.find('.perfectcopy-modal-code');
                         $code.select();
                         document.execCommand('copy');
-                        $(this).text(siteSyncClonerAdmin.i18n.copied);
+                        $(this).text(perfectcopyAdmin.i18n.copied);
                         setTimeout(() => {
-                            $(this).text(siteSyncClonerAdmin.i18n.copyExport);
+                            $(this).text(perfectcopyAdmin.i18n.copyExport);
                         }, 2000);
                     });
                     
                     // Handle download button
-                    $modal.find('.sitesync-modal-download').on('click', function() {
-                        const filename = 'sitesync-export-' + data.title.toLowerCase().replace(/[^a-z0-9]/g, '-') + '.json';
+                    $modal.find('.perfectcopy-modal-download').on('click', function() {
+                        const filename = 'perfectcopy-export-' + data.title.toLowerCase().replace(/[^a-z0-9]/g, '-') + '.json';
                         const blob = new Blob([JSON.stringify(data.data, null, 2)], { type: 'application/json' });
                         const link = document.createElement('a');
                         link.href = window.URL.createObjectURL(blob);
@@ -366,12 +366,12 @@ jQuery(document).ready(function($) {
                     });
                 } else {
                     // Show error message
-                    $modal.find('.sitesync-modal-message').text(response.data.message).addClass('error');
+                    $modal.find('.perfectcopy-modal-message').text(response.data.message).addClass('error');
                 }
             },
             error: function() {
                 // Show error message
-                $modal.find('.sitesync-modal-message').text(siteSyncClonerAdmin.i18n.exportError).addClass('error');
+                $modal.find('.perfectcopy-modal-message').text(perfectcopyAdmin.i18n.exportError).addClass('error');
             }
         });
     });
@@ -379,13 +379,13 @@ jQuery(document).ready(function($) {
     /**
      * Handle quick export button in post edit meta box
      */
-    $(document).on('click', '.sitesync-quick-export-button', function() {
+    $(document).on('click', '.perfectcopy-quick-export-button', function() {
         const $button = $(this);
-        const $result = $button.siblings('.sitesync-export-result');
+        const $result = $button.siblings('.perfectcopy-export-result');
         const url = $button.data('url');
         
         // Disable button and show loading
-        $button.prop('disabled', true).text(siteSyncClonerAdmin.i18n.exportGenerating);
+        $button.prop('disabled', true).text(perfectcopyAdmin.i18n.exportGenerating);
         
         // Make AJAX request
         $.ajax({
@@ -399,18 +399,18 @@ jQuery(document).ready(function($) {
                     // Create export result content
                     $result.html(
                         '<p class="success">' + data.message + '</p>' +
-                        '<textarea readonly rows="4" class="sitesync-export-code">' + JSON.stringify(data.data) + '</textarea>' +
-                        '<button type="button" class="button button-small sitesync-copy-export-code">' + siteSyncClonerAdmin.i18n.copyExport + '</button>'
+                        '<textarea readonly rows="4" class="perfectcopy-export-code">' + JSON.stringify(data.data) + '</textarea>' +
+                        '<button type="button" class="button button-small perfectcopy-copy-export-code">' + perfectcopyAdmin.i18n.copyExport + '</button>'
                     ).show();
                     
                     // Handle copy button click
-                    $result.find('.sitesync-copy-export-code').on('click', function() {
-                        const $code = $result.find('.sitesync-export-code');
+                    $result.find('.perfectcopy-copy-export-code').on('click', function() {
+                        const $code = $result.find('.perfectcopy-export-code');
                         $code.select();
                         document.execCommand('copy');
-                        $(this).text(siteSyncClonerAdmin.i18n.copied);
+                        $(this).text(perfectcopyAdmin.i18n.copied);
                         setTimeout(() => {
-                            $(this).text(siteSyncClonerAdmin.i18n.copyExport);
+                            $(this).text(perfectcopyAdmin.i18n.copyExport);
                         }, 2000);
                     });
                 } else {
@@ -419,14 +419,14 @@ jQuery(document).ready(function($) {
                 }
                 
                 // Re-enable button
-                $button.prop('disabled', false).text(siteSyncClonerAdmin.i18n.exportContent);
+                $button.prop('disabled', false).text(perfectcopyAdmin.i18n.exportContent);
             },
             error: function() {
                 // Show error message
-                $result.html('<p class="error">' + siteSyncClonerAdmin.i18n.exportError + '</p>').show();
+                $result.html('<p class="error">' + perfectcopyAdmin.i18n.exportError + '</p>').show();
                 
                 // Re-enable button
-                $button.prop('disabled', false).text(siteSyncClonerAdmin.i18n.exportContent);
+                $button.prop('disabled', false).text(perfectcopyAdmin.i18n.exportContent);
             }
         });
     });
@@ -435,7 +435,7 @@ jQuery(document).ready(function($) {
         e.preventDefault();
         
         if (selectedItems.length === 0) {
-            showNotice($exportNotice, siteSyncClonerAdmin.i18n.exportError + ' ' + 
+            showNotice($exportNotice, perfectcopyAdmin.i18n.exportError + ' ' + 
                        'Please select content to export.', 'error');
             return;
         }
@@ -445,8 +445,8 @@ jQuery(document).ready(function($) {
         
         // Prepare data for batch or single export
         let ajaxData = {
-            action: 'sitesync_cloner_export',
-            nonce: siteSyncClonerAdmin.nonce
+            action: 'perfectcopy_export',
+            nonce: perfectcopyAdmin.nonce
         };
         
         if (selectedItems.length > 1) {
@@ -459,7 +459,7 @@ jQuery(document).ready(function($) {
         
         // AJAX request to generate export code
         $.ajax({
-            url: siteSyncClonerAdmin.ajaxUrl,
+            url: perfectcopyAdmin.ajaxUrl,
             type: 'POST',
             data: ajaxData,
             success: function(response) {
@@ -475,9 +475,9 @@ jQuery(document).ready(function($) {
                     
                     // Show appropriate success message
                     if (response.data.is_batch && response.data.count > 1) {
-                        showNotice($exportNotice, response.data.summary || siteSyncClonerAdmin.i18n.batchExportSuccess.replace('{count}', response.data.count), 'success');
+                        showNotice($exportNotice, response.data.summary || perfectcopyAdmin.i18n.batchExportSuccess.replace('{count}', response.data.count), 'success');
                     } else {
-                        showNotice($exportNotice, siteSyncClonerAdmin.i18n.exportSuccess, 'success');
+                        showNotice($exportNotice, perfectcopyAdmin.i18n.exportSuccess, 'success');
                     }
                     
                     // Scroll to export code
@@ -485,13 +485,13 @@ jQuery(document).ready(function($) {
                         scrollTop: $exportResult.offset().top - 100
                     }, 300);
                 } else {
-                    const errorMsg = response.data ? response.data.message : siteSyncClonerAdmin.i18n.exportError;
+                    const errorMsg = response.data ? response.data.message : perfectcopyAdmin.i18n.exportError;
                     showNotice($exportNotice, errorMsg, 'error');
                 }
             },
             error: function() {
                 $generateExportBtn.prop('disabled', false).text('Generate Export Code');
-                showNotice($exportNotice, siteSyncClonerAdmin.i18n.exportError, 'error');
+                showNotice($exportNotice, perfectcopyAdmin.i18n.exportError, 'error');
             }
         });
     });
@@ -507,9 +507,9 @@ jQuery(document).ready(function($) {
         try {
             // Copy to clipboard
             document.execCommand('copy');
-            showNotice($exportNotice, siteSyncClonerAdmin.i18n.copySuccess, 'success');
+            showNotice($exportNotice, perfectcopyAdmin.i18n.copySuccess, 'success');
         } catch (err) {
-            showNotice($exportNotice, siteSyncClonerAdmin.i18n.copyError, 'error');
+            showNotice($exportNotice, perfectcopyAdmin.i18n.copyError, 'error');
         }
     });
     
@@ -522,12 +522,12 @@ jQuery(document).ready(function($) {
         const exportCode = $exportCode.val();
         
         if (!exportCode) {
-            showNotice($exportNotice, siteSyncClonerAdmin.i18n.saveError, 'error');
+            showNotice($exportNotice, perfectcopyAdmin.i18n.saveError, 'error');
             return;
         }
         
         // Get post title for filename
-        const postTitle = $('#sitesync-cloner-post-select option:selected').text() || 'sitesync-export';
+        const postTitle = $('#perfectcopy-post-select option:selected').text() || 'perfectcopy-export';
         // Create sanitized filename
         const filename = postTitle.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + 
                         new Date().toISOString().slice(0, 10) + '.json';
@@ -548,7 +548,7 @@ jQuery(document).ready(function($) {
             window.URL.revokeObjectURL(url);
         }, 0);
         
-        showNotice($exportNotice, siteSyncClonerAdmin.i18n.saveSuccess, 'success');
+        showNotice($exportNotice, perfectcopyAdmin.i18n.saveSuccess, 'success');
     });
     
     /**
@@ -563,7 +563,7 @@ jQuery(document).ready(function($) {
         
         // Check if file is JSON
         if (file.type !== 'application/json' && !file.name.endsWith('.json')) {
-            showNotice($importNotice, siteSyncClonerAdmin.i18n.fileReadError, 'error');
+            showNotice($importNotice, perfectcopyAdmin.i18n.fileReadError, 'error');
             return;
         }
         
@@ -577,14 +577,14 @@ jQuery(document).ready(function($) {
                 // Set the textarea value
                 $importCode.val(event.target.result);
                 
-                showNotice($importNotice, siteSyncClonerAdmin.i18n.fileReadSuccess, 'success');
+                showNotice($importNotice, perfectcopyAdmin.i18n.fileReadSuccess, 'success');
             } catch (err) {
-                showNotice($importNotice, siteSyncClonerAdmin.i18n.fileReadError, 'error');
+                showNotice($importNotice, perfectcopyAdmin.i18n.fileReadError, 'error');
             }
         };
         
         reader.onerror = function() {
-            showNotice($importNotice, siteSyncClonerAdmin.i18n.fileReadError, 'error');
+            showNotice($importNotice, perfectcopyAdmin.i18n.fileReadError, 'error');
         };
         
         reader.readAsText(file);
@@ -608,12 +608,12 @@ jQuery(document).ready(function($) {
         
         // AJAX request to validate import code
         $.ajax({
-            url: siteSyncClonerAdmin.ajaxUrl,
+            url: perfectcopyAdmin.ajaxUrl,
             type: 'POST',
             data: {
-                action: 'sitesync_cloner_validate_import',
+                action: 'perfectcopy_validate_import',
                 import_code: importCode,
-                nonce: siteSyncClonerAdmin.nonce
+                nonce: perfectcopyAdmin.nonce
             },
             success: function(response) {
                 $validateImportBtn.prop('disabled', false).text('Validate');
@@ -635,7 +635,7 @@ jQuery(document).ready(function($) {
                         $previewType.text(response.data.type);
                         $previewMediaCount.text(response.data.media_count);
                         $importPreview.show();
-                        showNotice($importNotice, siteSyncClonerAdmin.i18n.validationSuccess, 'success');
+                        showNotice($importNotice, perfectcopyAdmin.i18n.validationSuccess, 'success');
                     }
                     
                     // Scroll to preview
@@ -643,14 +643,14 @@ jQuery(document).ready(function($) {
                         scrollTop: $importPreview.offset().top - 100
                     }, 300);
                 } else {
-                    const errorMsg = response.data ? response.data.message : siteSyncClonerAdmin.i18n.validationError;
+                    const errorMsg = response.data ? response.data.message : perfectcopyAdmin.i18n.validationError;
                     showNotice($importNotice, errorMsg, 'error');
                     $importPreview.hide();
                 }
             },
             error: function() {
                 $validateImportBtn.prop('disabled', false).text('Validate');
-                showNotice($importNotice, siteSyncClonerAdmin.i18n.validationError, 'error');
+                showNotice($importNotice, perfectcopyAdmin.i18n.validationError, 'error');
                 $importPreview.hide();
             }
         });
@@ -677,7 +677,7 @@ jQuery(document).ready(function($) {
         $importProgress.show();
         $importResult.hide(); // Ensure result is hidden before starting
         $progressBar.css('width', '10%');
-        $progressMessage.text(siteSyncClonerAdmin.i18n.processingContent);
+        $progressMessage.text(perfectcopyAdmin.i18n.processingContent);
         
         // Initialize progress simulation
         let progressComplete = false;
@@ -692,12 +692,12 @@ jQuery(document).ready(function($) {
         
         // AJAX request to import content
         $.ajax({
-            url: siteSyncClonerAdmin.ajaxUrl,
+            url: perfectcopyAdmin.ajaxUrl,
             type: 'POST',
             data: {
-                action: 'sitesync_cloner_import',
+                action: 'perfectcopy_import',
                 import_code: importCode,
-                nonce: siteSyncClonerAdmin.nonce
+                nonce: perfectcopyAdmin.nonce
             },
             success: function(response) {
                 $importNowBtn.prop('disabled', false).text('Import Now');
@@ -710,12 +710,12 @@ jQuery(document).ready(function($) {
                     if (response.data.is_batch) {
                         showNotice($importNotice, response.data.summary, 'success');
                     } else {
-                        showNotice($importNotice, siteSyncClonerAdmin.i18n.importSuccess, 'success');
+                        showNotice($importNotice, perfectcopyAdmin.i18n.importSuccess, 'success');
                     }
                     
                     checkIfReadyToShowResult();
                 } else {
-                    const errorMsg = response.data ? response.data.message : siteSyncClonerAdmin.i18n.importError;
+                    const errorMsg = response.data ? response.data.message : perfectcopyAdmin.i18n.importError;
                     showNotice($importNotice, errorMsg, 'error');
                     $importProgress.hide();
                     $importPreview.show();
@@ -724,7 +724,7 @@ jQuery(document).ready(function($) {
             error: function() {
                 $importNowBtn.prop('disabled', false).text('Import Now');
                 serverResponseReceived = true;
-                showNotice($importNotice, siteSyncClonerAdmin.i18n.importError, 'error');
+                showNotice($importNotice, perfectcopyAdmin.i18n.importError, 'error');
                 $importProgress.hide();
                 $importPreview.show();
             }
@@ -744,12 +744,12 @@ jQuery(document).ready(function($) {
                         ? 'Successfully imported ' + successCount + ' items!'
                         : 'Content imported successfully!';
                     
-                    $('#sitesync-cloner-import-result h3').text('Batch Import Complete');
-                    $('#sitesync-cloner-import-result p').first().text(importCompletionMsg);
+                    $('#perfectcopy-import-result h3').text('Batch Import Complete');
+                    $('#perfectcopy-import-result p').first().text(importCompletionMsg);
                     
                     // If we have errors, display them
                     if (responseData.error_count && responseData.error_count > 0) {
-                        $('#sitesync-cloner-import-result').append('<p class="import-errors">' + 
+                        $('#perfectcopy-import-result').append('<p class="import-errors">' + 
                                                                  responseData.error_count + ' items failed to import</p>');
                     }
                 }
@@ -763,9 +763,9 @@ jQuery(document).ready(function($) {
                         // Default to the post type listing in admin
                         const firstSuccessItem = responseData.success && responseData.success.length > 0 ? responseData.success[0] : null;
                         if (firstSuccessItem && firstSuccessItem.post_type === 'page') {
-                            $viewImportedBtn.attr('href', siteSyncClonerAdmin.adminUrl + 'edit.php?post_type=page');
+                            $viewImportedBtn.attr('href', perfectcopyAdmin.adminUrl + 'edit.php?post_type=page');
                         } else {
-                            $viewImportedBtn.attr('href', siteSyncClonerAdmin.adminUrl + 'edit.php');
+                            $viewImportedBtn.attr('href', perfectcopyAdmin.adminUrl + 'edit.php');
                         }
                     }
                     $viewImportedBtn.text('View Imported Content');
@@ -804,8 +804,8 @@ jQuery(document).ready(function($) {
     // Simulate progress updates
     function simulateProgressUpdates(callback) {
         const steps = [
-            { percent: 25, message: siteSyncClonerAdmin.i18n.processingContent },
-            { percent: 50, message: siteSyncClonerAdmin.i18n.downloadingMedia },
+            { percent: 25, message: perfectcopyAdmin.i18n.processingContent },
+            { percent: 50, message: perfectcopyAdmin.i18n.downloadingMedia },
             { percent: 75, message: 'Creating post and importing content...' },
             { percent: 90, message: 'Finalizing import...' },
             { percent: 100, message: 'Import completed!' }

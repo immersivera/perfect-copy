@@ -7,7 +7,7 @@ const archiver = require('archiver');
 
 const SOURCE_DIR = path.resolve(__dirname, '..');
 const DIST_DIR = path.resolve(SOURCE_DIR, 'dist');
-const PLUGIN_NAME = 'sitesync-cloner';
+const PLUGIN_NAME = 'perfectcopy';
 
 // Function to create zip file
 const createZip = () => {

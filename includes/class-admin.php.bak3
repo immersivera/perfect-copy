@@ -1,8 +1,8 @@
 <?php
 /**
- * Admin class for SiteSync Cloner.
+ * Admin class for Perfect Copy.
  *
- * @package SiteSync_Cloner
+ * @package perfectcopy
  */
 
 // Exit if accessed directly.
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Admin class.
  */
-class SiteSync_Cloner_Admin {
+class perfectcopy_Admin {
 
     /**
      * Initialize the admin class.
@@ -26,9 +26,9 @@ class SiteSync_Cloner_Admin {
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
         
         // Register AJAX handlers.
-        add_action( 'wp_ajax_sitesync_cloner_export', array( $this, 'handle_export_ajax' ) );
-        add_action( 'wp_ajax_sitesync_cloner_validate_import', array( $this, 'handle_validate_import_ajax' ) );
-        add_action( 'wp_ajax_sitesync_cloner_import', array( $this, 'handle_import_ajax' ) );
+        add_action( 'wp_ajax_perfectcopy_export', array( $this, 'handle_export_ajax' ) );
+        add_action( 'wp_ajax_perfectcopy_validate_import', array( $this, 'handle_validate_import_ajax' ) );
+        add_action( 'wp_ajax_perfectcopy_import', array( $this, 'handle_import_ajax' ) );
     }
 
     /**
@@ -38,20 +38,20 @@ class SiteSync_Cloner_Admin {
         // Add export page.
         add_submenu_page(
             'tools.php',
-            __( 'SiteSync Cloner - Export', 'clone-n-export' ),
-            __( 'SiteSync Cloner', 'clone-n-export' ),
+            __( 'Perfect Copy - Export', 'perfectcopy' ),
+            __( 'Perfect Copy', 'perfectcopy' ),
             'edit_posts',
-            'sitesync-cloner-export',
+            'perfectcopy-export',
             array( $this, 'render_export_page' )
         );
 
         // Add import page.
         add_submenu_page(
             'tools.php',
-            __( 'SiteSync Cloner - Import', 'clone-n-export' ),
-            __( 'SiteSync Cloner Import', 'clone-n-export' ),
+            __( 'Perfect Copy - Import', 'perfectcopy' ),
+            __( 'Perfect Copy Import', 'perfectcopy' ),
             'edit_posts',
-            'sitesync-cloner-import',
+            'perfectcopy-import',
             array( $this, 'render_import_page' )
         );
     }
@@ -62,45 +62,45 @@ class SiteSync_Cloner_Admin {
      * @param string $hook Current admin page hook.
      */
     public function enqueue_admin_scripts( $hook ) {
-        if ( 'tools_page_sitesync-cloner-export' !== $hook && 'tools_page_sitesync-cloner-import' !== $hook ) {
+        if ( 'tools_page_perfectcopy-export' !== $hook && 'tools_page_perfectcopy-import' !== $hook ) {
             return;
         }
 
         // Enqueue CSS.
         wp_enqueue_style(
-            'sitesync-cloner-admin',
-            SITESYNC_CLONER_PLUGIN_URL . 'assets/css/admin.css',
+            'perfectcopy-admin',
+            PERFECT_COPY__PLUGIN_URL . 'assets/css/admin.css',
             array(),
-            SITESYNC_CLONER_VERSION
+            PERFECT_COPY__VERSION
         );
 
         // Enqueue JS.
         wp_enqueue_script(
-            'sitesync-cloner-admin',
-            SITESYNC_CLONER_PLUGIN_URL . 'assets/js/admin.js',
+            'perfectcopy-admin',
+            PERFECT_COPY__PLUGIN_URL . 'assets/js/admin.js',
             array( 'jquery' ),
-            SITESYNC_CLONER_VERSION,
+            PERFECT_COPY__VERSION,
             true
         );
 
         // Localize script.
         wp_localize_script(
-            'sitesync-cloner-admin',
-            'siteSyncClonerAdmin',
+            'perfectcopy-admin',
+            'perfectcopyAdmin',
             array(
                 'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
-                'nonce'     => wp_create_nonce( 'sitesync-cloner-nonce' ),
+                'nonce'     => wp_create_nonce( 'perfectcopy-nonce' ),
                 'i18n'      => array(
-                    'exportSuccess'     => __( 'Export generated successfully!', 'sitesync-cloner' ),
-                    'exportError'       => __( 'Error generating export.', 'sitesync-cloner' ),
-                    'copySuccess'       => __( 'Export code copied to clipboard!', 'sitesync-cloner' ),
-                    'copyError'         => __( 'Error copying to clipboard.', 'sitesync-cloner' ),
-                    'validationSuccess' => __( 'JSON validated successfully!', 'sitesync-cloner' ),
-                    'validationError'   => __( 'Invalid JSON format or missing required fields.', 'sitesync-cloner' ),
-                    'importSuccess'     => __( 'Content imported successfully!', 'sitesync-cloner' ),
-                    'importError'       => __( 'Error importing content.', 'sitesync-cloner' ),
-                    'downloadingMedia'  => __( 'Downloading media files...', 'sitesync-cloner' ),
-                    'processingContent' => __( 'Processing content...', 'sitesync-cloner' ),
+                    'exportSuccess'     => __( 'Export generated successfully!', 'perfectcopy' ),
+                    'exportError'       => __( 'Error generating export.', 'perfectcopy' ),
+                    'copySuccess'       => __( 'Export code copied to clipboard!', 'perfectcopy' ),
+                    'copyError'         => __( 'Error copying to clipboard.', 'perfectcopy' ),
+                    'validationSuccess' => __( 'JSON validated successfully!', 'perfectcopy' ),
+                    'validationError'   => __( 'Invalid JSON format or missing required fields.', 'perfectcopy' ),
+                    'importSuccess'     => __( 'Content imported successfully!', 'perfectcopy' ),
+                    'importError'       => __( 'Error importing content.', 'perfectcopy' ),
+                    'downloadingMedia'  => __( 'Downloading media files...', 'perfectcopy' ),
+                    'processingContent' => __( 'Processing content...', 'perfectcopy' ),
                 ),
             )
         );
@@ -111,20 +111,20 @@ class SiteSync_Cloner_Admin {
      */
     public function render_export_page() {
         ?>
-        <div class="wrap sitesync-cloner-wrap">
-            <h1><?php esc_html_e( 'SiteSync Cloner - Export', 'clone-n-export' ); ?></h1>
+        <div class="wrap perfectcopy-wrap">
+            <h1><?php esc_html_e( 'Perfect Copy - Export', 'perfectcopy' ); ?></h1>
             
-            <div class="sitesync-cloner-card">
-                <h2><?php esc_html_e( 'Export Content', 'clone-n-export' ); ?></h2>
-                <p><?php esc_html_e( 'Select a post or page to export and generate a JSON code that can be imported into another WordPress site.', 'clone-n-export' ); ?></p>
+            <div class="perfectcopy-card">
+                <h2><?php esc_html_e( 'Export Content', 'perfectcopy' ); ?></h2>
+                <p><?php esc_html_e( 'Select a post or page to export and generate a JSON code that can be imported into another WordPress site.', 'perfectcopy' ); ?></p>
                 
                 <div class="wp-content-porter-form">
-                    <?php wp_nonce_field( 'sitesync-cloner-export', 'sitesync_cloner_export_nonce' ); ?>
+                    <?php wp_nonce_field( 'perfectcopy-export', 'perfectcopy_export_nonce' ); ?>
                     
-                    <div class="sitesync-cloner-form-row">
-                        <label for="sitesync-cloner-post-select"><?php esc_html_e( 'Select Post/Page:', 'clone-n-export' ); ?></label>
-                        <select id="sitesync-cloner-post-select" name="post_id" required>
-                            <option value=""><?php esc_html_e( 'Select a post or page', 'clone-n-export' ); ?></option>
+                    <div class="perfectcopy-form-row">
+                        <label for="perfectcopy-post-select"><?php esc_html_e( 'Select Post/Page:', 'perfectcopy' ); ?></label>
+                        <select id="perfectcopy-post-select" name="post_id" required>
+                            <option value=""><?php esc_html_e( 'Select a post or page', 'perfectcopy' ); ?></option>
                             <?php
                             $posts = get_posts(
                                 array(
@@ -147,25 +147,25 @@ class SiteSync_Cloner_Admin {
                         </select>
                     </div>
                     
-                    <div class="sitesync-cloner-form-row">
-                        <button id="sitesync-cloner-generate-export" class="button button-primary"><?php esc_html_e( 'Generate Export Code', 'clone-n-export' ); ?></button>
+                    <div class="perfectcopy-form-row">
+                        <button id="perfectcopy-generate-export" class="button button-primary"><?php esc_html_e( 'Generate Export Code', 'perfectcopy' ); ?></button>
                     </div>
                 </div>
                 
-                <div id="sitesync-cloner-export-result" class="sitesync-cloner-result" style="display: none;">
-                    <h3><?php esc_html_e( 'Export Code', 'clone-n-export' ); ?></h3>
-                    <p><?php esc_html_e( 'Copy this code and paste it into the import field on your target WordPress site.', 'clone-n-export' ); ?></p>
+                <div id="perfectcopy-export-result" class="perfectcopy-result" style="display: none;">
+                    <h3><?php esc_html_e( 'Export Code', 'perfectcopy' ); ?></h3>
+                    <p><?php esc_html_e( 'Copy this code and paste it into the import field on your target WordPress site.', 'perfectcopy' ); ?></p>
                     
-                    <div class="sitesync-cloner-form-row">
-                        <textarea id="sitesync-cloner-export-code" readonly rows="10"></textarea>
+                    <div class="perfectcopy-form-row">
+                        <textarea id="perfectcopy-export-code" readonly rows="10"></textarea>
                     </div>
                     
-                    <div class="sitesync-cloner-form-row">
-                        <button id="sitesync-cloner-copy-export" class="button button-secondary"><?php esc_html_e( 'Copy to Clipboard', 'clone-n-export' ); ?></button>
+                    <div class="perfectcopy-form-row">
+                        <button id="perfectcopy-copy-export" class="button button-secondary"><?php esc_html_e( 'Copy to Clipboard', 'perfectcopy' ); ?></button>
                     </div>
                 </div>
                 
-                <div id="sitesync-cloner-export-notice" class="notice" style="display: none;"></div>
+                <div id="perfectcopy-export-notice" class="notice" style="display: none;"></div>
             </div>
         </div>
         <?php
@@ -176,59 +176,59 @@ class SiteSync_Cloner_Admin {
      */
     public function render_import_page() {
         ?>
-        <div class="wrap sitesync-cloner-wrap">
-            <h1><?php esc_html_e( 'SiteSync Cloner - Import', 'clone-n-export' ); ?></h1>
+        <div class="wrap perfectcopy-wrap">
+            <h1><?php esc_html_e( 'Perfect Copy - Import', 'perfectcopy' ); ?></h1>
             
-            <div class="sitesync-cloner-card">
-                <h2><?php esc_html_e( 'Import Content', 'clone-n-export' ); ?></h2>
-                <p><?php esc_html_e( 'Paste the export code generated by SiteSync Cloner and import it into this site.', 'clone-n-export' ); ?></p>
+            <div class="perfectcopy-card">
+                <h2><?php esc_html_e( 'Import Content', 'perfectcopy' ); ?></h2>
+                <p><?php esc_html_e( 'Paste the export code generated by Perfect Copy and import it into this site.', 'perfectcopy' ); ?></p>
                 
-                <div class="sitesync-cloner-form">
-                    <?php wp_nonce_field( 'sitesync-cloner-import', 'sitesync_cloner_import_nonce' ); ?>
+                <div class="perfectcopy-form">
+                    <?php wp_nonce_field( 'perfectcopy-import', 'perfectcopy_import_nonce' ); ?>
                     
-                    <div class="sitesync-cloner-form-row">
-                        <label for="sitesync-cloner-import-code"><?php esc_html_e( 'Paste Export Code:', 'clone-n-export' ); ?></label>
-                        <textarea id="sitesync-cloner-import-code" name="import_code" rows="10" required></textarea>
+                    <div class="perfectcopy-form-row">
+                        <label for="perfectcopy-import-code"><?php esc_html_e( 'Paste Export Code:', 'perfectcopy' ); ?></label>
+                        <textarea id="perfectcopy-import-code" name="import_code" rows="10" required></textarea>
                     </div>
                     
-                    <div class="sitesync-cloner-form-row">
-                        <button id="sitesync-cloner-validate-import" class="button button-secondary"><?php esc_html_e( 'Validate', 'clone-n-export' ); ?></button>
-                    </div>
-                </div>
-                
-                <div id="sitesync-cloner-import-preview" class="sitesync-cloner-preview" style="display: none;">
-                    <h3><?php esc_html_e( 'Import Preview', 'clone-n-export' ); ?></h3>
-                    
-                    <div class="sitesync-cloner-preview-content">
-                        <p><strong><?php esc_html_e( 'Title:', 'sitesync-cloner' ); ?></strong> <span id="sitesync-cloner-preview-title"></span></p>
-                        <p><strong><?php esc_html_e( 'Type:', 'sitesync-cloner' ); ?></strong> <span id="sitesync-cloner-preview-type"></span></p>
-                        <p><strong><?php esc_html_e( 'Media Count:', 'sitesync-cloner' ); ?></strong> <span id="sitesync-cloner-preview-media-count"></span></p>
-                    </div>
-                    
-                    <div class="sitesync-cloner-form-row">
-                        <button id="sitesync-cloner-import-now" class="button button-primary"><?php esc_html_e( 'Import Now', 'clone-n-export' ); ?></button>
+                    <div class="perfectcopy-form-row">
+                        <button id="perfectcopy-validate-import" class="button button-secondary"><?php esc_html_e( 'Validate', 'perfectcopy' ); ?></button>
                     </div>
                 </div>
                 
-                <div id="sitesync-cloner-import-progress" class="sitesync-cloner-progress" style="display: none;">
-                    <h3><?php esc_html_e( 'Import Progress', 'clone-n-export' ); ?></h3>
+                <div id="perfectcopy-import-preview" class="perfectcopy-preview" style="display: none;">
+                    <h3><?php esc_html_e( 'Import Preview', 'perfectcopy' ); ?></h3>
                     
-                    <div class="sitesync-cloner-progress-bar-container">
-                        <div id="sitesync-cloner-progress-bar" class="sitesync-cloner-progress-bar"></div>
+                    <div class="perfectcopy-preview-content">
+                        <p><strong><?php esc_html_e( 'Title:', 'perfectcopy' ); ?></strong> <span id="perfectcopy-preview-title"></span></p>
+                        <p><strong><?php esc_html_e( 'Type:', 'perfectcopy' ); ?></strong> <span id="perfectcopy-preview-type"></span></p>
+                        <p><strong><?php esc_html_e( 'Media Count:', 'perfectcopy' ); ?></strong> <span id="perfectcopy-preview-media-count"></span></p>
                     </div>
                     
-                    <p id="sitesync-cloner-progress-message"><?php esc_html_e( 'Importing...', 'clone-n-export' ); ?></p>
+                    <div class="perfectcopy-form-row">
+                        <button id="perfectcopy-import-now" class="button button-primary"><?php esc_html_e( 'Import Now', 'perfectcopy' ); ?></button>
+                    </div>
                 </div>
                 
-                <div id="sitesync-cloner-import-result" class="sitesync-cloner-result" style="display: none;">
-                    <h3><?php esc_html_e( 'Import Complete', 'clone-n-export' ); ?></h3>
+                <div id="perfectcopy-import-progress" class="perfectcopy-progress" style="display: none;">
+                    <h3><?php esc_html_e( 'Import Progress', 'perfectcopy' ); ?></h3>
                     
-                    <p><?php esc_html_e( 'Content imported successfully as a draft!', 'sitesync-cloner' ); ?></p>
+                    <div class="perfectcopy-progress-bar-container">
+                        <div id="perfectcopy-progress-bar" class="perfectcopy-progress-bar"></div>
+                    </div>
                     
-                    <p><a id="sitesync-cloner-view-imported" href="#" class="button button-primary"><?php esc_html_e( 'Edit Imported Content', 'sitesync-cloner' ); ?></a></p>
+                    <p id="perfectcopy-progress-message"><?php esc_html_e( 'Importing...', 'perfectcopy' ); ?></p>
                 </div>
                 
-                <div id="sitesync-cloner-import-notice" class="notice" style="display: none;"></div>
+                <div id="perfectcopy-import-result" class="perfectcopy-result" style="display: none;">
+                    <h3><?php esc_html_e( 'Import Complete', 'perfectcopy' ); ?></h3>
+                    
+                    <p><?php esc_html_e( 'Content imported successfully as a draft!', 'perfectcopy' ); ?></p>
+                    
+                    <p><a id="perfectcopy-view-imported" href="#" class="button button-primary"><?php esc_html_e( 'Edit Imported Content', 'perfectcopy' ); ?></a></p>
+                </div>
+                
+                <div id="perfectcopy-import-notice" class="notice" style="display: none;"></div>
             </div>
         </div>
         <?php
@@ -239,19 +239,19 @@ class SiteSync_Cloner_Admin {
      */
     public function handle_export_ajax() {
         // Check nonce.
-        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'sitesync-cloner-nonce' ) ) {
-            wp_send_json_error( array( 'message' => __( 'Security check failed.', 'sitesync-cloner' ) ) );
+        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'perfectcopy-nonce' ) ) {
+            wp_send_json_error( array( 'message' => __( 'Security check failed.', 'perfectcopy' ) ) );
         }
 
         // Check if post ID is provided.
         if ( ! isset( $_POST['post_id'] ) ) {
-            wp_send_json_error( array( 'message' => __( 'No post selected.', 'sitesync-cloner' ) ) );
+            wp_send_json_error( array( 'message' => __( 'No post selected.', 'perfectcopy' ) ) );
         }
 
         $post_id = intval( $_POST['post_id'] );
 
         // Initialize exporter.
-        $exporter = new SiteSync_Cloner_Exporter();
+        $exporter = new perfectcopy_Exporter();
         
         // Generate export.
         $export_data = $exporter->export_post( $post_id );
@@ -261,7 +261,7 @@ class SiteSync_Cloner_Admin {
         }
 
         // Process JSON with JSON processor.
-        $json_processor = new SiteSync_Cloner_JSON_Processor();
+        $json_processor = new perfectcopy_JSON_Processor();
         $json = $json_processor->encode( $export_data );
 
         if ( is_wp_error( $json ) ) {
@@ -276,19 +276,19 @@ class SiteSync_Cloner_Admin {
      */
     public function handle_validate_import_ajax() {
         // Check nonce.
-        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'sitesync-cloner-nonce' ) ) {
-            wp_send_json_error( array( 'message' => __( 'Security check failed.', 'sitesync-cloner' ) ) );
+        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'perfectcopy-nonce' ) ) {
+            wp_send_json_error( array( 'message' => __( 'Security check failed.', 'perfectcopy' ) ) );
         }
 
         // Check if import code is provided.
         if ( ! isset( $_POST['import_code'] ) ) {
-            wp_send_json_error( array( 'message' => __( 'No import code provided.', 'sitesync-cloner' ) ) );
+            wp_send_json_error( array( 'message' => __( 'No import code provided.', 'perfectcopy' ) ) );
         }
 
         $import_code = wp_unslash( $_POST['import_code'] );
 
         // Process JSON with JSON processor.
-        $json_processor = new SiteSync_Cloner_JSON_Processor();
+        $json_processor = new perfectcopy_JSON_Processor();
         $import_data = $json_processor->decode( $import_code );
 
         if ( is_wp_error( $import_data ) ) {
@@ -296,7 +296,7 @@ class SiteSync_Cloner_Admin {
         }
 
         // Validate the import data.
-        $validator = new SiteSync_Cloner_Importer();
+        $validator = new perfectcopy_Importer();
         $validation = $validator->validate_import_data( $import_data );
 
         if ( is_wp_error( $validation ) ) {
@@ -304,7 +304,7 @@ class SiteSync_Cloner_Admin {
         }
 
         // Get media count.
-        $media_handler = new SiteSync_Cloner_Media_Handler();
+        $media_handler = new perfectcopy_Media_Handler();
         $media_count = $media_handler->count_media_in_content( $import_data );
 
         wp_send_json_success(
@@ -321,19 +321,19 @@ class SiteSync_Cloner_Admin {
      */
     public function handle_import_ajax() {
         // Check nonce.
-        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'sitesync-cloner-nonce' ) ) {
-            wp_send_json_error( array( 'message' => __( 'Security check failed.', 'sitesync-cloner' ) ) );
+        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'perfectcopy-nonce' ) ) {
+            wp_send_json_error( array( 'message' => __( 'Security check failed.', 'perfectcopy' ) ) );
         }
 
         // Check if import code is provided.
         if ( ! isset( $_POST['import_code'] ) ) {
-            wp_send_json_error( array( 'message' => __( 'No import code provided.', 'sitesync-cloner' ) ) );
+            wp_send_json_error( array( 'message' => __( 'No import code provided.', 'perfectcopy' ) ) );
         }
 
         $import_code = wp_unslash( $_POST['import_code'] );
 
         // Process JSON with JSON processor.
-        $json_processor = new SiteSync_Cloner_JSON_Processor();
+        $json_processor = new perfectcopy_JSON_Processor();
         $import_data = $json_processor->decode( $import_code );
 
         if ( is_wp_error( $import_data ) ) {
@@ -341,7 +341,7 @@ class SiteSync_Cloner_Admin {
         }
 
         // Initialize importer.
-        $importer = new SiteSync_Cloner_Importer();
+        $importer = new perfectcopy_Importer();
         
         // Import the content.
         $result = $importer->import_content( $import_data );

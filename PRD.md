@@ -1,8 +1,8 @@
-# Product Requirements Document (PRD): Wordpress Plugin - SiteSync Cloner
+# Product Requirements Document (PRD): Wordpress Plugin - Perfect Copy
 
 ## Overview
 
-SiteSync Cloner is a WordPress plugin designed to simplify the process of duplicating and transferring content between WordPress sites. It offers a streamlined, user-friendly approach to content migration through a JSON-based export/import system that preserves all essential content components.
+Perfect Copy is a WordPress plugin designed to simplify the process of duplicating and transferring content between WordPress sites. It offers a streamlined, user-friendly approach to content migration through a JSON-based export/import system that preserves all essential content components.
 
 ## Problem Statement
 
@@ -10,7 +10,7 @@ Transferring WordPress content between sites is currently a complex, multi-step 
 
 ## Solution
 
-SiteSync Cloner provides a straightforward copy-paste mechanism to transfer posts and pages between WordPress sites while preserving content structure, media, custom fields, and taxonomies.
+Perfect Copy provides a straightforward copy-paste mechanism to transfer posts and pages between WordPress sites while preserving content structure, media, custom fields, and taxonomies.
 
 ## MVP Feature Requirements
 
@@ -87,8 +87,8 @@ SiteSync Cloner provides a straightforward copy-paste mechanism to transfer post
 
 ### File Structure
 ```
-sitesync-cloner/
-├── sitesync-cloner.php       # Main plugin file
+perfectcopy/
+├── perfectcopy.php       # Main plugin file
 ├── includes/
 │   ├── class-admin.php         # Admin interface
 │   ├── class-exporter.php      # Export functionality
@@ -109,7 +109,7 @@ sitesync-cloner/
 ## User Flows
 
 ### Export Flow
-1. User navigates to Tools > SiteSync Cloner > Export
+1. User navigates to Tools > Perfect Copy > Export
 2. User selects post/page from dropdown
 3. User clicks "Generate Export Code"
 4. System displays JSON in text area

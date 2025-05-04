@@ -1,5 +1,5 @@
 {
-  "name": "sitesync-cloner",
+  "name": "perfectcopy",
   "version": "1.0.0",
   "description": "WordPress plugin for content migration via JSON export/import",
   "main": "index.js",

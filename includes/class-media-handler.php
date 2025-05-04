@@ -1,8 +1,8 @@
 <?php
 /**
- * Media Handler class for SiteSync Cloner.
+ * Media Handler class for Perfect Copy.
  *
- * @package SiteSync_Cloner
+ * @package Perfect_Copy
  */
 
 // Exit if accessed directly.
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Media Handler class.
  */
-class SiteSync_Cloner_Media_Handler {
+class Perfect_Copy_Media_Handler {
 
     /**
      * Extract media references from export data.
@@ -260,7 +260,7 @@ class SiteSync_Cloner_Media_Handler {
      */
     public function process_media_files( $import_data ) {
         // Get settings for media handling
-        $settings = get_option('sitesync_cloner_settings', array());
+        $settings = get_option('perfectcopy_settings', array());
         $handle_media = isset($settings['handle_media']) ? (bool)$settings['handle_media'] : true;
         
         // Extract media references regardless of setting (for reference tracking)

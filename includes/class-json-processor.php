@@ -1,8 +1,8 @@
 <?php
 /**
- * JSON Processor class for SiteSync Cloner.
+ * JSON Processor class for Perfect Copy.
  *
- * @package SiteSync_Cloner
+ * @package Perfect_Copy
  */
 
 // Exit if accessed directly.
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * JSON Processor class.
  */
-class SiteSync_Cloner_JSON_Processor {
+class Perfect_Copy_JSON_Processor {
 
     /**
      * Encode data to JSON.
@@ -23,7 +23,7 @@ class SiteSync_Cloner_JSON_Processor {
      */
     public function encode( $data ) {
         if ( ! is_array( $data ) ) {
-            return new WP_Error( 'invalid_data', __( 'Data to encode must be an array.', 'sitesync-cloner' ) );
+            return new WP_Error( 'invalid_data', __( 'Data to encode must be an array.', 'perfectcopy' ) );
         }
 
         // Add export timestamp.
@@ -34,7 +34,7 @@ class SiteSync_Cloner_JSON_Processor {
         $json = wp_json_encode( $data, JSON_PRETTY_PRINT );
 
         if ( false === $json ) {
-            return new WP_Error( 'json_encode_failed', __( 'Failed to encode data to JSON.', 'sitesync-cloner' ) );
+            return new WP_Error( 'json_encode_failed', __( 'Failed to encode data to JSON.', 'perfectcopy' ) );
         }
 
         return $json;
@@ -48,21 +48,21 @@ class SiteSync_Cloner_JSON_Processor {
      */
     public function decode( $json ) {
         if ( ! is_string( $json ) ) {
-            return new WP_Error( 'invalid_json', __( 'JSON to decode must be a string.', 'sitesync-cloner' ) );
+            return new WP_Error( 'invalid_json', __( 'JSON to decode must be a string.', 'perfectcopy' ) );
         }
 
         // Decode JSON.
         $data = json_decode( $json, true );
 
         if ( null === $data ) {
-            return new WP_Error( 'json_decode_failed', __( 'Failed to decode JSON.', 'sitesync-cloner' ) );
+            return new WP_Error( 'json_decode_failed', __( 'Failed to decode JSON.', 'perfectcopy' ) );
         }
 
         // Check if this is a batch import
         if ( isset( $data['batch_id'] ) && isset( $data['items'] ) && is_array( $data['items'] ) ) {
             // Batch import - validate that we have items
             if ( empty( $data['items'] ) ) {
-                return new WP_Error( 'empty_batch', __( 'Batch import contains no items.', 'sitesync-cloner' ) );
+                return new WP_Error( 'empty_batch', __( 'Batch import contains no items.', 'perfectcopy' ) );
             }
             
             // Validate the first item to make sure it has the required fields
@@ -74,7 +74,7 @@ class SiteSync_Cloner_JSON_Processor {
                         'missing_required_field',
                         sprintf(
                             /* translators: %s: Field name */
-                            __( 'Missing required field in items: %s', 'sitesync-cloner' ),
+                            __( 'Missing required field in items: %s', 'perfectcopy' ),
                             $field
                         )
                     );
@@ -89,7 +89,7 @@ class SiteSync_Cloner_JSON_Processor {
                         'missing_required_field',
                         sprintf(
                             /* translators: %s: Field name */
-                            __( 'Missing required field: %s', 'sitesync-cloner' ),
+                            __( 'Missing required field: %s', 'perfectcopy' ),
                             $field
                         )
                     );

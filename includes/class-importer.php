@@ -1,8 +1,8 @@
 <?php
 /**
- * Importer class for SiteSync Cloner.
+ * Importer class for Perfect Copy.
  *
- * @package SiteSync_Cloner
+ * @package Perfect_Copy
  */
 
 // Exit if accessed directly.
@@ -13,12 +13,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Importer class.
  */
-class SiteSync_Cloner_Importer {
+class Perfect_Copy_Importer {
 
     /**
      * Media handler instance.
      *
-     * @var SiteSync_Cloner_Media_Handler
+     * @var Perfect_Copy_Media_Handler
      */
     private $media_handler;
 
@@ -26,7 +26,7 @@ class SiteSync_Cloner_Importer {
      * Initialize the importer class.
      */
     public function __construct() {
-        $this->media_handler = new SiteSync_Cloner_Media_Handler();
+        $this->media_handler = new Perfect_Copy_Media_Handler();
     }
 
     /**
@@ -46,7 +46,7 @@ class SiteSync_Cloner_Importer {
         if ( empty( $batch_data['items'] ) ) {
             return new WP_Error(
                 'empty_batch',
-                __( 'Batch import contains no valid items.', 'sitesync-cloner' )
+                __( 'Batch import contains no valid items.', 'perfectcopy' )
             );
         }
         
@@ -57,7 +57,7 @@ class SiteSync_Cloner_Importer {
                 return new WP_Error(
                     $validation->get_error_code(),
                     sprintf(
-                        __( 'Error in item %d: %s', 'sitesync-cloner' ),
+                        __( 'Error in item %d: %s', 'perfectcopy' ),
                         $index + 1,
                         $validation->get_error_message()
                     )
@@ -84,7 +84,7 @@ class SiteSync_Cloner_Importer {
                     'missing_required_field',
                     sprintf(
                         /* translators: %s: Field name */
-                        __( 'Missing required field: %s', 'sitesync-cloner' ),
+                        __( 'Missing required field: %s', 'perfectcopy' ),
                         $field
                     )
                 );
@@ -92,7 +92,7 @@ class SiteSync_Cloner_Importer {
         }
 
         // Get allowed post types from settings
-        $settings = get_option('sitesync_cloner_settings', array());
+        $settings = get_option('perfectcopy_settings', array());
         $allowed_post_types = isset($settings['post_types']) ? $settings['post_types'] : array('post', 'page');
         
         // Check if the post type is allowed
@@ -101,7 +101,7 @@ class SiteSync_Cloner_Importer {
                 'invalid_post_type',
                 sprintf(
                     /* translators: %s: Post type */
-                    __( 'Invalid post type: %s. This post type is not enabled in SiteSync Cloner settings.', 'sitesync-cloner' ),
+                    __( 'Invalid post type: %s. This post type is not enabled in Perfect Copy settings.', 'perfectcopy' ),
                     $import_data['post_type']
                 )
             );
@@ -182,12 +182,12 @@ class SiteSync_Cloner_Importer {
         if ( 'post' === $import_data['post_type'] && ! current_user_can( 'publish_posts' ) ) {
             return new WP_Error(
                 'permission_denied',
-                __( 'You do not have permission to create posts.', 'sitesync-cloner' )
+                __( 'You do not have permission to create posts.', 'perfectcopy' )
             );
         } elseif ( 'page' === $import_data['post_type'] && ! current_user_can( 'publish_pages' ) ) {
             return new WP_Error(
                 'permission_denied',
-                __( 'You do not have permission to create pages.', 'sitesync-cloner' )
+                __( 'You do not have permission to create pages.', 'perfectcopy' )
             );
         }
 
@@ -356,7 +356,7 @@ class SiteSync_Cloner_Importer {
      */
     private function create_post( $import_data ) {
         // Get plugin settings
-        $settings = get_option('sitesync_cloner_settings', array());
+        $settings = get_option('perfectcopy_settings', array());
         $preserve_dates = isset($settings['preserve_dates']) ? (bool)$settings['preserve_dates'] : true;
         
         $post_data = array(

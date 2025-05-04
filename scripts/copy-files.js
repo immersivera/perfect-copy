@@ -14,7 +14,7 @@ const INCLUDES = [
   'languages',
   'assets',  // Include entire assets folder for structure
   'index.php',
-  'sitesync-cloner.php',
+  'perfectcopy.php',
   'readme.txt'
 ];
 
