@@ -15,7 +15,8 @@ const INCLUDES = [
   'assets',  // Include entire assets folder for structure
   'index.php',
   'perfectcopy.php',
-  'readme.txt'
+  'readme.txt',
+  'LICENSE.md'
 ];
 
 // Create index.php files for directories
